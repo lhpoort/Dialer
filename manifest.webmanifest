@@ -1,0 +1,8 @@
+{
+  "name": "!Bien dialer",
+  "short_name": "Dialer",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "A simple web based dialer and contactlist for Fusion PBX."
+}

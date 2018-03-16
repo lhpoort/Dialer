@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>FusiuonPBX | Dialer</title>
+  <link rel="stylesheet" type="text/css" href="CSS/style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+  <script src="jquery.min.js"></script>
+  <script src="script.js"></script>
+  <script>if (window.module) module = window.module;</script>
+</head>
+<body>
+<header>
+      <h1>Contacten</h1>
+      <a id="doset" href="#" title="Instellingen"><img src="CSS/Components/settings.svg" alt="Instellingen icoon"></a>
+</header>
+<div id="contact">
+  <section id="list">
+    <form class="containerInput">
+        <input type="text" id="search" name="search" placeholder="Zoek contact..">
+        <a href="#" id="add" title="Contact toevoegen">
+          <img src="CSS/Components/android-person-add.svg" alt="Contact icoon">
+        </a>
+    </form>
+    <address>
+      <a href="#">Willem Menno</a><a href="#" class="more">&gt;</a>
+    </address>
+  </section>
+  <section id="detail">
+    <a href="#" class="less">&lt;</a>
+    <form>
+      <fieldset class="name">
+        <div><input type="hidden" name="contact_uuid" value="0"><label><input type="radio" name="contact_name_prefix" value="Dhr.">Dhr.</label><label><input type="radio" name="contact_name_prefix" value="Mevr.">Mevr.</label></div>
+        <div><input type="text" name="contact_name_given" placeholder="voornaam"></div>
+        <div><input type="text" name="contact_name_middle" placeholder="initialen"></div>
+        <div><input type="text" name="contact_name_suffix" placeholder="tussenvoegsel"></div>
+        <div><input type="text" name="contact_name_family" placeholder="achternaam"></div>
+        <div><input type="text" name="contact_organization" placeholder="organisatie"></div>
+        <fieldset class="phone">
+          <div class="add">
+            <input type="text" name="contact_phones[0][label]" placeholder="Werk" class="label"><input type="text" name="contact_phones[0][number]" placeholder="telefoonnummer">
+          </div>
+        </fieldset>
+      </fieldset>
+    </form>
+  </section>
+  <section id="settings">
+    <div><input type="text" name="pbx_address" placeholder="Adres centrale"></div>
+    <div><input type="text" name="pbx_extension" placeholder="Extensie nummer"></div>
+    <div><input type="password" name="pbx_password" placeholder="Wachtwoord"></div>
+    <div><button id="connect">verbinden</button></div>
+    <div><label class="switch">Do not disturb<input type="checkbox" name="pbx_dnd"><span class="slider round"></span></label></div>
+    <div><label class="switch">Voicemail<input type="checkbox" name="pbx_voice"><span class="slider round"></span></label></div>
+    <div><label class="switch">Call forward<input type="checkbox" name="pbx_cfw"><span class="slider round"></span></label></div>
+    <div><input type="text" name="pbx_callforward" placeholder="call forward nummer" disabled="disabled"></div>
+  </section>
+  <footer>
+  </footer>
+</div>
+  <section class="console">
+    <button id="docon" class="on">&lt;</button>
+    <address>
+      <a href="#" class="back"><div class="led busy"></div>Willem</br>15</a>
+    </address>
+    <address>
+      <a href="#" class="back"><div class="led busy"></div>Willem</br>15</a>
+    </address>
+    <form id="extEdit" action="#">
+      <fieldset>
+        <div><button><img src="CSS/Components/check.svg"></button><input type="text" name="extension" placeholder="extension"></div>
+        <div><textarea type="text" name="label" placeholder="label"></textarea></div>
+      </fieldset>
+    </form>
+  </section>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "Dialer",
+  "version": "1.0.0",
+  "description": "Web based dailer app for Fusion PBX",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "dialer",
+    "web based",
+    "electron"
+  ],
+  "author": "lhp",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^1.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lhpoort/Dialer"
+  }
+}
