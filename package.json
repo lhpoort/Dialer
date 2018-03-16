@@ -1,5 +1,5 @@
 {
-  "name": "Dialer",
+  "name": "dialer",
   "version": "1.0.0",
   "description": "Web based dailer app for Fusion PBX",
   "main": "main.js",
