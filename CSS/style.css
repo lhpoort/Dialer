@@ -370,3 +370,23 @@ section#settings button{
   border-radius: 4px;
   background: linear-gradient(#06150a,#293e42);
 }
+@media screen and (max-width: 768px) {
+  section.console address {
+    float: left;
+    width: calc(100% - 35px);
+    padding: 0 5px 0 0;
+  }
+}
+@media screen and (max-width: 1024px) {
+  section.console address {
+    float: left;
+    width: calc(100% - 35px);
+    padding: 0 5px 0 0;
+  }
+}
+
+@media screen and (max-width: 670px) {
+  section.console address {
+  display:none;
+  }
+}
