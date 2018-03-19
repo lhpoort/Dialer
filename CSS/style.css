@@ -143,6 +143,33 @@ section#detail form fieldset.phone div input {
   width: calc(100% - 172px);
 }
 
+section#detail form fieldset.phone div a {
+  display: none;
+  opacity: 0.54;
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  cursor: pointer;
+}
+
+section#detail form fieldset.phone div:hover a {
+  display:inline-block;
+}
+
+section#detail form fieldset.phone div a:hover {
+  opacity: 1.0;
+}
+
+section#detail form fieldset.phone div a.mov {
+  margin: 10px 5px 0 0;
+  background-image: url(Components/move.svg);
+}
+
+section#detail form fieldset.phone div a.del {
+  margin: 10px 0 0 5px;
+  background-image: url(Components/delete.svg);
+}
+
 section#detail a.less, 
 section#list address a.more{
   float: right;
