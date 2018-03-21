@@ -133,16 +133,23 @@ section#detail form fieldset > div {
   margin: 0 0 7px 0;
 }
 
+section#detail form fieldset legend {
+  display: none;
+}
+
+section#detail form fieldset.email div input.label, 
 section#detail form fieldset.phone div input.label {
-  width: 120px;
+    width: 120px;
   margin: 0 0 0 20px;
 }
 
+section#detail form fieldset.email div input, 
 section#detail form fieldset.phone div input {
   margin: 0 0 0 7px;
   width: calc(100% - 172px);
 }
 
+section#detail form fieldset.email div a, 
 section#detail form fieldset.phone div a {
   display: none;
   opacity: 0.54;
@@ -152,19 +159,23 @@ section#detail form fieldset.phone div a {
   cursor: pointer;
 }
 
+section#detail form fieldset.email div:hover a, 
 section#detail form fieldset.phone div:hover a {
   display:inline-block;
 }
 
+section#detail form fieldset.email div a:hover, 
 section#detail form fieldset.phone div a:hover {
   opacity: 1.0;
 }
 
+section#detail form fieldset.email div a.mov, 
 section#detail form fieldset.phone div a.mov {
   margin: 10px 5px 0 0;
   background-image: url(Components/move.svg);
 }
 
+section#detail form fieldset.email div a.del, 
 section#detail form fieldset.phone div a.del {
   margin: 10px 0 0 5px;
   background-image: url(Components/delete.svg);
@@ -251,16 +262,6 @@ section.console > button{
   cursor: pointer;
 }
 
-footer {
-  background-image: url('Components/footerBalk.png');
-  height: 50px;
-  width: 100%;
-  overflow: auto;
-  box-shadow: -1px -3px 20px 0;
-  position: fixed;
-  bottom: 0;
-}
-
 /*** CONSOLE EXTENSION EDITOR ***/
 section.console img#editIcon {
   display:none;
@@ -302,6 +303,15 @@ section.console address a.edit form#extEdit {
 section#settings {
   display: none;
 }
+
+section#settings form fieldset legend {
+  display: none;
+}
+
+section#settings form fieldset {
+  border: none;
+}
+
 
 section#settings div {
   float: left;
@@ -370,6 +380,17 @@ section#settings button{
   border-radius: 4px;
   background: linear-gradient(#06150a,#293e42);
 }
+
+footer {
+  background-image: url(Components/footerBalk.png);
+  height: 50px;
+  width: 100%;
+  overflow: auto;
+  box-shadow: -1px -3px 20px 0;
+  position: fixed;
+  bottom: 0;
+}
+
 @media screen and (max-width: 768px) {
   section.console address {
     float: left;
