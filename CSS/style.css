@@ -45,7 +45,8 @@ textarea {
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
-  margin: 0 0 0 5px; 
+  margin: 0 0 0 5px;
+  font-family: Verdana, sans-serif;
 }
 header img {
   width: 30px;
@@ -369,6 +370,7 @@ section#settings button{
   color:white;
   border-radius: 4px;
   background: linear-gradient(#06150a,#293e42);
+  font-family: Verdana, sans-serif;
 }
 @media screen and (max-width: 768px) {
   section.console address {
