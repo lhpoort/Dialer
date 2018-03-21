@@ -45,7 +45,8 @@ textarea {
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
-  margin: 0 0 0 5px; 
+  margin: 0 0 0 5px;
+  font-family: Verdana, sans-serif;
 }
 header img {
   width: 30px;
@@ -232,6 +233,10 @@ section.console address:nth-child(odd) .led {
   background: lawngreen;
   box-shadow: #000 0 -1px 7px 1px, inset #6dd45a 0 -1px 9px, #39f40b 0 2px 12px;
 }
+.disturb{
+  background: orange;
+  box-shadow: #000 0 -1px 7px 1px, inset #FFD732 0 -1px 9px, #FFAF0A 0 2px 12px;
+}
 
 a.back:nth-child(odd){
   background-image: url('Components/footerBalk.png');
@@ -379,6 +384,7 @@ section#settings button{
   color:white;
   border-radius: 4px;
   background: linear-gradient(#06150a,#293e42);
+  font-family: Verdana, sans-serif;
 }
 
 footer {
@@ -398,7 +404,7 @@ footer {
     padding: 0 5px 0 0;
   }
 }
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 1120px) {
   section.console address {
     float: left;
     width: calc(100% - 35px);
