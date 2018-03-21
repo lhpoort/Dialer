@@ -222,6 +222,10 @@ section.console address:nth-child(odd) .led {
   background: lawngreen;
   box-shadow: #000 0 -1px 7px 1px, inset #6dd45a 0 -1px 9px, #39f40b 0 2px 12px;
 }
+.disturb{
+  background: orange;
+  box-shadow: #000 0 -1px 7px 1px, inset #FFD732 0 -1px 9px, #FFAF0A 0 2px 12px;
+}
 
 a.back:nth-child(odd){
   background-image: url('Components/footerBalk.png');
