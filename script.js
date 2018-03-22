@@ -93,7 +93,7 @@ function getStatus() {
 
       /*** CHECK IF DND ***/
       if(oExtension.do_not_disturb === "true") {
-        $('section.console a[data-extension="' + oExtension.extension + '"] div.led').addClass('busy');
+        $('section.console a[data-extension="' + oExtension.extension + '"] div.led').addClass('disturb');
         continue;        
       }
 
@@ -115,6 +115,23 @@ function getStatus() {
 }
 
 /*** CHECK SETTINGS ***/
+function shoExtension(oExtension) {
+  $('input[name="pbx_do_not_disturb"]').prop("checked", oExtension.do_not_disturb === "true");
+  $('input[name="pbx_voicemail_enabled"]').prop("checked", oExtension.voicemail.voicemail_enabled === "true");
+  if(oExtension.forward_all_enabled === "true") {
+    $('input[name="pbx_forward_all_enabled"]').prop("checked", true);
+    $('input[name="pbx_forward_all_destination"]').prop("disabled", false);
+    $('input[name="pbx_forward_all_destination"]').val(oExtension.forward_all_destination);
+  } else {
+    $('input[name="pbx_forward_all_enabled"]').prop("checked", false);
+    $('input[name="pbx_forward_all_destination"]').prop("disabled", true);
+    $('input[name="pbx_forward_all_destination"]').val("");
+  }
+  $('input[name="pbx_effective_caller_id_name"]').val(oExtension.effective_caller_id_name);
+  $('input[name="pbx_directory_first_name"]').val(oExtension.directory_first_name);
+  $('input[name="pbx_directory_mid_fix"]').val(oExtension.directory_mid_fix);
+  $('input[name="pbx_directory_last_name"]').val(oExtension.directory_last_name);
+}
 function login(oSettings, fCallback){
     var oButton = $("button#connect");
     oButton.text("...");
@@ -122,12 +139,14 @@ function login(oSettings, fCallback){
     /*** UPDATE LOGIN DATA ***/
     if(oResult.code === 0) {
       var oExtension = oResult.extension;
+      shoExtension(oExtension);
       oSettings.password = oExtension.password;
       var settingObjectStore = db.transaction("settings", "readwrite").objectStore("settings");
       settingObjectStore.put(oSettings, 0);
       oButton.text("verbonden");
       sServer = oSettings.server;
       sExtension = oSettings.extension;
+      /*** SHOW EXTENSION DETAILS */
       console.log(oResult.message);
       if(fCallback) fCallback();
     } else if(oResult.message) {
@@ -266,6 +285,9 @@ $(document).ready(function() {
     
     $("fieldset.phone div:not(.add)").remove();
     $("fieldset.phone div.add input").val("");
+
+    $("fieldset.email div:not(.add)").remove();
+    $("fieldset.email div.add input").val("");
     $("section#list").hide();
     $("section#detail").show();
   });
@@ -302,6 +324,8 @@ $(document).ready(function() {
       $("input[name=contact_name_suffix]").val(oResult.contact_name_suffix);
       $("input[name=contact_name_family]").val(oResult.contact_name_family);
       $("input[name=contact_organization]").val(oResult.contact_organization);
+
+      /*** CONTACT PHONES ***/
       $("fieldset.phone div:not(.add)").remove();
       $("fieldset.phone div.add input").val("");
       var iLast = 0;
@@ -315,6 +339,22 @@ $(document).ready(function() {
           + '<a role="button" class="del"></a></div>');
       }
       $('fieldset.phone div.add input[name$="[sequence]"]').val(iLast + 100);
+
+      /*** CONTACT EMAILS ***/
+      $("fieldset.email div:not(.add)").remove();
+      $("fieldset.email div.add input").val("");
+      var iLast = 0;
+      for(var e in oResult.contact_emails) {
+        iLast += 100;
+        var oEmail = oResult.contact_emails[e];
+        $("fieldset.email div.add").before('<div id="' + oEmail.contact_email_uuid + '" draggable="true"><a role="button" class="mov"></a>'
+          + '<input type="hidden" name="contact_emails[' + oEmail.contact_email_uuid +  '][sequence]" value="' + iLast + '">'
+          + '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid +  '][label]" placeholder="' + oEmail.email_label + '" class="label" value="' + oEmail.email_label + '">'
+          + '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid +  '][email]" placeholder="e-mailadres" value="' + oEmail.email_address + '">'
+          + '<a role="button" class="del"></a></div>');
+      }
+      $('fieldset.email div.add input[name$="[sequence]"]').val(iLast + 100);
+
       $("section#list").hide();
       $("section#detail").show();
     });
@@ -341,6 +381,15 @@ $(document).ready(function() {
         $('div[id="__NEW__"] input[name="contact_phones[0][label]"]').attr("name", "contact_phones[" + oPhone.contact_phone_uuid + "][label]");
         $('div[id="__NEW__"] input[name="contact_phones[0][number]"]').attr("name", "contact_phones[" + oPhone.contact_phone_uuid + "][number]");
         $('div[id="__NEW__"]').attr('id', oPhone.contact_phone_uuid);
+        break;
+      }
+      for(var e in oResult.contact_emails){
+        var oEmail = oResult.contact_emails[e];
+        if($('input[name="contact_emails[' + oEmail.contact_email_uuid + '][label]"]').length > 0) continue;
+        $('div[id="__NEW__"] input[name="contact_emails[0][sequence]"]').attr("name", "contact_emails[" + oEmail.contact_email_uuid + "][sequence]");
+        $('div[id="__NEW__"] input[name="contact_emails[0][label]"]').attr("name", "contact_emails[" + oEmail.contact_email_uuid + "][label]");
+        $('div[id="__NEW__"] input[name="contact_emails[0][email]"]').attr("name", "contact_emails[" + oEmail.contact_email_uuid + "][email]");
+        $('div[id="__NEW__"]').attr('id', oEmail.contact_email_uuid);
         break;
       }
     });
@@ -377,8 +426,8 @@ $(document).ready(function() {
      var oSeq = $('section#detail form fieldset.phone div.add input[name$="[sequence]"]');
      oSeq.val(parseInt(oSeq.val()) + 100);
   });
-  /*** DELET PHONE NUMBER ***/
-  $("section#detail").on("click", "form fieldset a.del", function() {
+  /*** DELETE PHONE NUMBER ***/
+  $("section#detail").on("click", "form fieldset.phone a.del", function() {
     var oDiv = $(this).parent();
     $.ajax({
       method: "DELETE",
@@ -389,6 +438,50 @@ $(document).ready(function() {
       }
     })
   });
+
+  /*** EDIT EMAIL ***/
+  /*** INIT DRAG AND DROP ***/
+  $('section#detail').on('drop', 'fieldset.email', function(ev){
+    doDrop(ev, function(){
+      var iLast = 0;
+      $('fieldset.email div:not(.add) input[name$="[sequence]"]').each(function(){
+        iLast += 100
+        $(this).val(iLast);
+      });
+      updContact();
+    })
+  }).on('dragover', 'fieldset.email', doDragOver);
+  $('section#detail').on('drag', 'fieldset.email div:not(.add)', doDragStart).on('dragend', 'fieldset.email div:not(.add)', doDragEnd);
+  $('section#detail').on('click', 'fieldset.email div a.mov', function(){
+    $(this).parent().prop('draggable',true);
+  });
+  /** ADD EMAIL ***/
+  $('section#detail').on('change', 'form fieldset.email div.add input.label', function() {
+    $("section#detail form fieldset.email div.add").clone()
+      .removeClass('add')
+      .attr('id', '__NEW__')
+      .prop('draggable', true)
+      .insertBefore("section#detail form fieldset.email div.add")
+      .prepend('<a class="mov"></a>')
+      .append('<a class="del"></a>')
+      .find('input:eq(2)').focus();
+    this.value="";
+    var oSeq = $('section#detail form fieldset.email div.add input[name$="[sequence]"]');
+    oSeq.val(parseInt(oSeq.val()) + 100);
+  });
+  /*** DELETE EMAIL ***/
+  $("section#detail").on("click", "form fieldset.email a.del", function() {
+    var oDiv = $(this).parent();
+    $.ajax({
+      method: "DELETE",
+      url: sServer + "contacts.php", 
+      data: {"contact_email_uuid": oDiv.attr('id')}, 
+      success: function(oResult) {
+        oDiv.remove();
+      }
+    })
+  });
+
   /*** HIDE CONTACT EDIT ***/
   $("section").on("click", "a.less", function() {
     $("section#detail").hide();
@@ -407,6 +500,7 @@ $(document).ready(function() {
       $(this).html("&lt;")
       $("div#contact").show();
     }
+    return false;
   });
 
   /*** SET SETTINGS ***/
@@ -426,7 +520,36 @@ $(document).ready(function() {
       getStatus();
     });
   });
+  /*** EXTENSION EDITING ***/
+  $("section#settings fieldset.ext_status input, section#settings fieldset.ext_coor input").on("change", function(){
+    if(this.name == "pbx_forward_all_enabled") {
+      if($(this).prop("checked")) {
+        $('section#settings fieldset.ext_status input[name="pbx_forward_all_destination"]').prop("disabled", false).focus();
+      } else {
+        $('section#settings fieldset.ext_status input[name="pbx_forward_all_destination"]').prop("disabled", true).val("");
+      }
 
+    }
+    var oExtension = {
+      "extension": $('input[name="pbx_extension"]').val(),
+      "do_not_disturb": $('input[name="pbx_do_not_disturb"]').prop("checked"),
+      "voicemail_enabled": $('input[name="pbx_voicemail_enabled"]').prop("checked"),
+      "forward_all_enabled": $('input[name="pbx_forward_all_enabled"]').prop("checked"),
+      "forward_all_destination": $('input[name="pbx_forward_all_destination"]').val(),
+      "effective_caller_id_name": $('input[name="pbx_effective_caller_id_name"]').val(),
+      "directory_first_name": $('input[name="pbx_directory_first_name"]').val(),
+      "directory_mid_fix": $('input[name="pbx_directory_mid_fix"]').val(),
+      "directory_last_name": $('input[name="pbx_directory_last_name"]').val()
+    };
+    $.post(sServer + 'extensions.php', oExtension, function(oResult){
+      try {
+        if(oResult.code != 0) throw new Error(oResult.message);
+        console.log(oResult.message);
+      } catch(e) {
+        alert("Er is een fout opgetreden: " + e.message + "\r\n" + oResult);
+      }
+    });
+  });
   /*** INIT CONSOLE ***/
   $("section.console address").html("");
   var iHeight = $("section.console").height() - $("section.console address").height();
@@ -503,5 +626,4 @@ $(document).ready(function() {
       alert(e.message)
     }
   });
-
 });

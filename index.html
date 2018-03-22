@@ -40,23 +40,46 @@
         <div><input type="text" name="contact_name_family" placeholder="achternaam"></div>
         <div><input type="text" name="contact_organization" placeholder="organisatie"></div>
         <fieldset class="phone">
+          <legend>Telefoon</legend>
           <div class="add">
             <input type="hidden" name="contact_phones[0][sequence]">
             <input type="text" name="contact_phones[0][label]" placeholder="Werk" class="label"><input type="text" name="contact_phones[0][number]" placeholder="telefoonnummer">
+          </div>
+        </fieldset>
+        <fieldset class="email">
+          <legend>email</legend>
+          <div class="add">
+            <input type="hidden" name="contact_emails[0][sequence]">
+            <input type="text" name="contact_emails[0][label]" placeholder="Werk" class="label"><input type="text" name="contact_emails[0][email]" placeholder="emailadres">
           </div>
         </fieldset>
       </fieldset>
     </form>
   </section>
   <section id="settings">
-    <div><input type="text" name="pbx_address" placeholder="Adres centrale"></div>
-    <div><input type="text" name="pbx_extension" placeholder="Extensie nummer"></div>
-    <div><input type="password" name="pbx_password" placeholder="Wachtwoord"></div>
-    <div><button id="connect">verbinden</button></div>
-    <div><label class="switch">Do not disturb<input type="checkbox" name="pbx_dnd"><span class="slider round"></span></label></div>
-    <div><label class="switch">Voicemail<input type="checkbox" name="pbx_voice"><span class="slider round"></span></label></div>
-    <div><label class="switch">Call forward<input type="checkbox" name="pbx_cfw"><span class="slider round"></span></label></div>
-    <div><input type="text" name="pbx_callforward" placeholder="call forward nummer" disabled="disabled"></div>
+    <form action="#" onsubmit="return false;">
+    <fieldset class="pbx_conn">
+      <legend>PBX Server verbindingsgegevens</legend>
+      <div><input type="text" name="pbx_address" placeholder="Adres centrale"></div>
+      <div><input type="text" name="pbx_extension" placeholder="Extensie nummer"></div>
+      <div><input type="password" name="pbx_password" placeholder="Wachtwoord"></div>
+      <div><button id="connect">verbinden</button></div>
+    </fieldset>
+    <fieldset class="ext_status">
+      <legend>Telefoon status</legend>
+      <div><label class="switch">Do not disturb<input type="checkbox" name="pbx_do_not_disturb"><span class="slider round"></span></label></div>
+      <div><label class="switch">Voicemail<input type="checkbox" name="pbx_voicemail_enabled"><span class="slider round"></span></label></div>
+      <div><label class="switch">Call forward<input type="checkbox" name="pbx_forward_all_enabled"><span class="slider round"></span></label></div>
+      <div><input type="text" name="pbx_forward_all_destination" placeholder="call forward nummer" disabled="disabled"></div>
+    </fieldset>
+    <fieldset class="ext_coor">
+      <legend>Namen voor interne telefoongids</legend>
+      <div><input type="text" name="pbx_effective_caller_id_name" placeholder="Display naam [tijdens bellen]"></div>
+      <div><input type="text" name="pbx_directory_first_name" placeholder="Voornaam [voor telefoongids]"></div>
+      <div><input type="text" name="pbx_directory_mid_fix" placeholder="Tussenvoegsel"></div>
+      <div><input type="text" name="pbx_directory_last_name" placeholder="Achternaam"></div>
+    </fieldset>
+    </form>
   </section>
   <footer>
   </footer>
@@ -64,10 +87,10 @@
   <section class="console">
     <button id="docon" class="on">&lt;</button>
     <address>
-      <a href="#" class="back"><div class="led busy"></div>Willem</br>15</a>
+      <a href="#" class="back"><div class="led busy"></div>Willem Menno</br>201</a>
     </address>
     <address>
-      <a href="#" class="back"><div class="led busy"></div>Willem</br>15</a>
+      <a href="#" class="back"><div class="led busy"></div>Willem Menno</br>201</a>
     </address>
     <form id="extEdit" action="#">
       <fieldset>
