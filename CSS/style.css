@@ -13,7 +13,7 @@ body{
 header {
   height: 50px;
   width: 100%;
-  background-image: url('Components/ContactsHead.png');
+  background-image: url('Components/headBalk.png');
 }
 h1{
   color:white;
