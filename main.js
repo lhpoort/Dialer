@@ -9,7 +9,7 @@ const url = require('url')
   
   function createWindow () {
     // Create the browser window.
-    win = new BrowserWindow({width: 360, height: 720})
+    win = new BrowserWindow({x: 20, y: 20, width: 390, alwaysOnTop: true, height: 780, icon: path.join(__dirname, 'CSS/Components/logo.png')})
   
     // and load the index.html of the app.
     win.loadURL(url.format({
@@ -19,7 +19,7 @@ const url = require('url')
     }))
   
     // Open the DevTools.
-    win.webContents.openDevTools()
+    //win.webContents.openDevTools()
   
     // Emitted when the window is closed.
     win.on('closed', () => {

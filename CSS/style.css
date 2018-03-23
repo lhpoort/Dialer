@@ -27,6 +27,9 @@ a {
   text-decoration: none;
   color: #fff;
 }
+button:focus {
+  outline:0;
+}
 
 form {
   margin: 0 0 5px 0;
@@ -200,10 +203,10 @@ section.console{
   width: calc(100vw - 360px);
 }
 section.console address {
-  min-width: 360px;
+  min-width: 240px;
   float: left;
   width: calc(50% - 20px);
-  padding: 0 5px 0 0;
+  padding: 0 0 0 5px;
 }
 section.console a {
   padding: 7px;
@@ -221,7 +224,7 @@ section.console a {
   background-color: grey;
 }
 
-section.console address:nth-child(odd) .led {
+section.console address:nth-child(even) .led {
   float: right;
 }
 
@@ -262,7 +265,7 @@ section.console > button{
   width: 30px;
   background: transparent;
   border: none;
-  float: left;
+  float: rigth;
   color: white;
   cursor: pointer;
 }
@@ -397,22 +400,13 @@ footer {
   bottom: 0;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 750px) {
   section.console address {
-    float: left;
     width: calc(100% - 35px);
-    padding: 0 5px 0 0;
-  }
-}
-@media screen and (max-width: 1120px) {
-  section.console address {
-    float: left;
-    width: calc(100% - 35px);
-    padding: 0 5px 0 0;
   }
 }
 
-@media screen and (max-width: 670px) {
+@media screen and (max-width: 540px) {
   section.console address {
   display:none;
   }

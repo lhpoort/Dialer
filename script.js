@@ -491,14 +491,18 @@ $(document).ready(function() {
   
   /*** SHOW/HIDE SETTINGS ***/
   $("button#docon").on("click", function() {
-    if($(this).hasClass("on")) {
-      $(this).removeClass("on");
-      $(this).html("&gt;")
-      $("div#contact").hide();
-    } else {
-      $(this).addClass("on");
-      $(this).html("&lt;")
-      $("div#contact").show();
+    if($(window).width() > 1100) {
+      $(this).removeClass("open");
+      window.resizeBy(-360, 0);
+    } else if($(this).hasClass("open") && $(window).width() > 740) {
+      $(this).html('&lt;')
+      window.resizeBy(360, 0);
+    } else if($(this).hasClass("open")) {
+      window.resizeBy(360, 0);
+    } else  {
+      window.resizeBy(-360, 0);
+      $(this).html('&gt;')
+      $(this).addClass("open");
     }
     return false;
   });
@@ -516,7 +520,6 @@ $(document).ready(function() {
     }
     login(oSettings, function(){
       shoContacts();
-      console.log("login II")
       getStatus();
     });
   });
