@@ -11,7 +11,7 @@
     "web based",
     "electron"
   ],
-  "author": "lhp",
+  "author": "L.H. Poort Anan6 B.V.",
   "license": "ISC",
   "devDependencies": {
     "electron": "^1.8.3"
