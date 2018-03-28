@@ -14,10 +14,14 @@
   "author": "lhp",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^1.8.3"
+    "electron": "^1.8.3",
+    "electron-builder": "^20.6.2"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/lhpoort/Dialer"
+  },
+  "dependencies": {
+    "asar": "^0.14.3"
   }
 }
