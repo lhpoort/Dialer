@@ -33,6 +33,7 @@ button:focus {
 
 form {
   margin: 0 0 5px 0;
+  width: 100%;
 }
 
 label{
@@ -42,19 +43,23 @@ input[type=text],
 input[type=password], 
 select, 
 textarea {
-  width: calc(100% - 45px);
-  padding: 12px;
+  width: calc(100% - 25px);
+  padding: 9px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
-  margin: 0 0 0 5px;
+  margin: 0;
   font-family: Verdana, sans-serif;
 }
 
 input:disabled {
   opacity: 0.5;
   color: #999;
+}
+
+input#search {
+  width: calc(100% - 40px);
 }
 
 header img {
@@ -69,10 +74,10 @@ img {
 }
 section#list address{
   width: 100%;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 142px);
   float: left;
   margin: 0px 0px 0px 0px;
-  overflow: auto
+  overflow: auto;
 }
 address a {
   display:block;
@@ -119,44 +124,42 @@ section#detail a {
   float: right;
 }
 
-section#detail form fieldset {
+section form fieldset {
   border: none;
-  margin: 10px 0 0 0;
+  margin: 0 0 9px 0;
   padding: 0;
 }
 
-section#detail form fieldset input {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  resize: vertical;
-  margin: 0 5px 0 20px;
+section form > fieldset {
+  padding: 0 10px 0 20px;
+  width: calc(100% - 30px);
 }
 
-section#detail form fieldset a, 
-section#detail form fieldset label {
+
+section form fieldset a, 
+section form fieldset label {
   color: #fff;
+  font-size: 0.9rem;
 }
 
-section#detail form fieldset > div {
+section form fieldset > div {
   margin: 0 0 7px 0;
+  width: 100%;
 }
 
 section#detail form fieldset legend {
   display: none;
 }
 
-section#detail form fieldset.email div input.label, 
-section#detail form fieldset.phone div input.label {
-    width: 120px;
-  margin: 0 0 0 20px;
-}
-
 section#detail form fieldset.email div input, 
 section#detail form fieldset.phone div input {
-  margin: 0 0 0 7px;
-  width: calc(100% - 172px);
+  margin: 0 7px 0 0;
+  width: calc(100% - 105px);
+}
+
+section#detail form fieldset.email div input.label, 
+section#detail form fieldset.phone div input.label {
+  width: 72px;
 }
 
 section#detail form fieldset.email div a, 
@@ -181,13 +184,13 @@ section#detail form fieldset.phone div a:hover {
 
 section#detail form fieldset.email div a.mov, 
 section#detail form fieldset.phone div a.mov {
-  margin: 10px 5px 0 0;
+  margin: 10px 3px 0 0;
   background-image: url(Components/move.svg);
 }
 
 section#detail form fieldset.email div a.del, 
 section#detail form fieldset.phone div a.del {
-  margin: 10px 0 0 5px;
+  margin: 10px 0 0 3px;
   background-image: url(Components/delete.svg);
 }
 
@@ -206,7 +209,7 @@ section#detail a.less {
 
 section.console{
   float: left;
-  width: calc(100vw - 360px);
+  width: calc(100vw - 276px);
 }
 section.console address {
   min-width: 240px;
@@ -323,6 +326,7 @@ section#settings form fieldset legend {
 
 section#settings form fieldset {
   border: none;
+  margin: 0 0 9px 0;
 }
 
 
@@ -336,7 +340,7 @@ section#settings .switch {
   float: left;
   height: 34px;
   line-height: 34px;
-  width: calc(100% - 45px);
+  width: calc(100% - 25px);
   margin: 0 0 0 5px;
 }
 section#settings .switch input {display:none;}
@@ -377,16 +381,10 @@ section#settings .slider.round {
 section#settings .slider.round:before {
   border-radius: 50%;
 }
-section#settings div{
-  color:white;
-  font-family: Verdana, sans-serif;
-  font-style: italic;
-  font-size: 14px;
-  margin: 8px 0px 5px 30px;
-}
+
 section#settings button{
   float: right;
-  margin: 0 45px 0 0;
+  margin: 9px 25px 9px 0;
   height: 30px;
   width: 90px;
   color:white;

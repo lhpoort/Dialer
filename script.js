@@ -201,7 +201,7 @@ function setSettings(){
         $("h1").text("Instellingen");
         $("div#contact").show();
         $("a#doset").addClass("on");
-        $("section#list").hide();
+        $("section#list, section#detail").hide();
         $("section#settings").show();
       }
     }
@@ -490,16 +490,16 @@ $(document).ready(function() {
   
   /*** SHOW/HIDE SETTINGS ***/
   $("button#docon").on("click", function() {
-    if($(window).width() > 1100) {
+    if($(window).width() > 830) {
       $(this).removeClass("open");
-      window.resizeBy(-360, 0);
-    } else if($(this).hasClass("open") && $(window).width() > 740) {
+      window.resizeBy(-282, 0);
+    } else if($(this).hasClass("open") && $(window).width() > 560) {
       $(this).html('&lt;')
-      window.resizeBy(360, 0);
+      window.resizeBy(282, 0);
     } else if($(this).hasClass("open")) {
-      window.resizeBy(360, 0);
+      window.resizeBy(282, 0);
     } else  {
-      window.resizeBy(-360, 0);
+      window.resizeBy(-282, 0);
       $(this).html('&gt;')
       $(this).addClass("open");
     }
