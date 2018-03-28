@@ -51,6 +51,12 @@ textarea {
   margin: 0 0 0 5px;
   font-family: Verdana, sans-serif;
 }
+
+input:disabled {
+  opacity: 0.5;
+  color: #999;
+}
+
 header img {
   width: 30px;
   float: right;
@@ -265,7 +271,6 @@ section.console > button{
   width: 30px;
   background: transparent;
   border: none;
-  float: rigth;
   color: white;
   cursor: pointer;
 }

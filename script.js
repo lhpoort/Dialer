@@ -121,12 +121,11 @@ function shoExtension(oExtension) {
   if(oExtension.forward_all_enabled === "true") {
     $('input[name="pbx_forward_all_enabled"]').prop("checked", true);
     $('input[name="pbx_forward_all_destination"]').prop("disabled", false);
-    $('input[name="pbx_forward_all_destination"]').val(oExtension.forward_all_destination);
   } else {
     $('input[name="pbx_forward_all_enabled"]').prop("checked", false);
     $('input[name="pbx_forward_all_destination"]').prop("disabled", true);
-    $('input[name="pbx_forward_all_destination"]').val("");
   }
+  $('input[name="pbx_forward_all_destination"]').val(oExtension.forward_all_destination);
   $('input[name="pbx_effective_caller_id_name"]').val(oExtension.effective_caller_id_name);
   $('input[name="pbx_directory_first_name"]').val(oExtension.directory_first_name);
   $('input[name="pbx_directory_mid_fix"]').val(oExtension.directory_mid_fix);
@@ -529,9 +528,8 @@ $(document).ready(function() {
       if($(this).prop("checked")) {
         $('section#settings fieldset.ext_status input[name="pbx_forward_all_destination"]').prop("disabled", false).focus();
       } else {
-        $('section#settings fieldset.ext_status input[name="pbx_forward_all_destination"]').prop("disabled", true).val("");
+        $('section#settings fieldset.ext_status input[name="pbx_forward_all_destination"]').prop("disabled", true);
       }
-
     }
     var oExtension = {
       "extension": $('input[name="pbx_extension"]').val(),
