@@ -143,6 +143,7 @@ section form fieldset label {
 }
 
 section form fieldset > div {
+  position : relative;
   margin: 0 0 7px 0;
   width: 100%;
 }
@@ -170,6 +171,7 @@ section#detail form fieldset.phone div a {
   width: 21px;
   height: 21px;
   cursor: pointer;
+  top: 7px;
 }
 
 section#detail form fieldset.email div:hover a, 
@@ -184,14 +186,14 @@ section#detail form fieldset.phone div a:hover {
 
 section#detail form fieldset.email div a.mov, 
 section#detail form fieldset.phone div a.mov {
-  margin: 10px 3px 0 0;
   background-image: url(Components/move.svg);
+  left: -21px;
 }
 
 section#detail form fieldset.email div a.del, 
 section#detail form fieldset.phone div a.del {
-  margin: 10px 0 0 3px;
   background-image: url(Components/delete.svg);
+  right: 0;
 }
 
 section#detail a.less, 
@@ -287,6 +289,7 @@ section.console form#extEdit {
 }
 
 section.console form#extEdit fieldset {
+  position: relative;
   border: none;
 }
 
@@ -295,17 +298,71 @@ section.console form#extEdit fieldset div {
   width: 100%;
 }
 
+section.console form#extEdit fieldset div a {
+  display: none;
+  opacity: 0.54;
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  cursor: pointer;
+  z-index: 10;
+  background: #333;
+  border-radius: 18px;
+  border-color: #333;
+  border-width: 2px;
+  top: 1px;
+}
+section.console form#extEdit fieldset div:hover a {
+  display: inline-block;
+}
+
+section.console form#extEdit fieldset div a.del {
+  background-image: url(Components/delete.svg);
+  right: 27px;
+}
+
+section.console form#extEdit fieldset div a:hover {
+  opacity: 1.0;
+}
+
 section.console form#extEdit fieldset button {
-  float: right;
-  background: transparent;
+  position: absolute;
+  right: 0;
+  z-index: 10;
+  background-image: url(Components/check.svg);
+  background-size: contain;
   border: none;
   cursor: pointer;
+  width: 27px;
+  height: 27px;
+  background-color: transparent;
 }
 
 section.console form#extEdit fieldset input[type=text], 
 section.console form#extEdit fieldset select, 
 section.console form#extEdit fieldset textarea {
-  width: calc(100% - 75px);
+  width: calc(100% - 24px);
+}
+section.console ul#extList {
+  display: none;
+  position: absolute;
+  top: 44px;
+  z-index: 10;
+  list-style: none;
+  background-color: #fff;
+  padding: 9px;
+  border-radius: 4px;
+  margin: 0;
+  width: calc(100% - 72px);
+}
+
+section.console ul#extList li {
+  padding: 5px 0;
+  color: #555;
+}
+
+section.console ul#extList li:hover {
+  color: #000;
 }
 
 section.console address a.edit {

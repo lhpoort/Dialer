@@ -1,6 +1,6 @@
 const dbName = "pbxConsole";
 const maxExt = 100;
-const refreshRate = 3000;
+const refreshRate = 30000;
 const timeout = 3000;
 var sServer = null; 
 var sExtension = null;
@@ -59,14 +59,17 @@ function shoContacts(search) {
     $('section#list address').html('');
     for(var c in cContacts) {
       var oContact = cContacts[c];
+      if(oContact.contact_nickname === null && oContact.contact_name_family === null) continue;
+      
       if(oContact.contact_phones.length > 0) {
         var sNumber = oContact.contact_phones[0].phone_number;
       } else {
         sNumber = "0";
       }
-      $('section#list address').append('<a href="#" data-phone-number="' + sNumber + '" alt="Click to call">' + oContact.contact_nickname
+      $('section#list address').append('<a href="#" data-phone-number="' + sNumber + '" alt="Click to call">' 
+        + (oContact.contact_nickname !== null ? " " + oContact.contact_nickname : "")
         + (oContact.contact_name_suffix !== null ? " " + oContact.contact_name_suffix : "")
-        + " " + oContact.contact_name_family + "</a>"
+        + (oContact.contact_name_family !== null ? " " + oContact.contact_name_family : "") + "</a>"
         + '<a class="more" rel="' + oContact.contact_uuid + '"href="#">&gt;</a>')
     }
     iSearch = null;
@@ -371,6 +374,12 @@ $(document).ready(function() {
          break;
       }
     });
+    /*** AT LEAST ONE NAME  */
+    if(oContact.contact_uuid == "" 
+      && oContact.contact_organization == "" 
+      && oContact.contact_name_family == ""
+      && oContact.contact_name_given == "") return true;
+
     $.post(sServer + "contacts.php", oContact, function(oResult) {
       $("input[name=contact_uuid]").val(oResult.contact_uuid);
       for(var p in oResult.contact_phones){
@@ -577,7 +586,55 @@ $(document).ready(function() {
     return false;
   });
 
-  $("section.console form#extEdit button").on("click", function() {
+  /*** EXTENSION LOOKUP ***/
+  var iGetExt = null;
+  $("section.console").on("keyup", 'input[name="extension"]', function() {
+    if(iGetExt !== null) {
+      window.clearTimeout(iGetExt);
+      iGetExt = null;
+    }
+    if(this.value.length > 2) {
+      var sSearch =  this.value;
+      iGetExt = window.setTimeout(function() {
+        $.get(sServer + 'extensions.php', {search: sSearch}, function(cExtensions){
+          if(cExtensions.length == 0) return false;
+          $('ul#extList').html("").show();
+          for(const e in cExtensions) {
+            var oExtension = cExtensions[e];
+            oExtension.fullname = oExtension.directory_last_name 
+            ? oExtension.directory_first_name 
+              + (oExtension.directory_mid_fix ? oExtension.directory_mid_fix : " ")
+              + oExtension.directory_last_name
+            : oExtension.description;
+            $('ul#extList').append('<li data-extension="' +oExtension.extension+ '" data-fullname="' +oExtension.fullname+ '">'  
+              + oExtension.extension + ": " + oExtension.fullname
+              + "</li>");
+          }
+        })}, 300);
+    } else {
+      $('ul#extList').html("").hide();
+    }
+  });
+  /** CHOOSE RETREIVED EXTENSION ***/
+  $("section.console").on("click", "ul#extList li", function() {
+    $('form#extEdit input[name="extension"]').val($(this).attr('data-extension'));
+    $('form#extEdit textarea[name="label"]').val($(this).attr('data-fullname') + "\r\n" + $(this).attr('data-extension'));
+    $('ul#extList').html("").hide();
+  });
+
+  /*** CLEAR EXTENSION ***/
+  $("section.console form#extEdit").on("click", "fieldset div a.del", function() {
+    $('form#extEdit input[name="extension"]').val("");
+    $('form#extEdit textarea[name="label"]').val("");
+  });
+
+  $("section.console form#extEdit button").on("click", function() { 
+    if($('ul#extList li').length == 1) {
+      $('form#extEdit input[name="extension"]').val($('ul#extList li:first').attr('data-extension'));
+      $('form#extEdit textarea[name="label"]').val($('ul#extList li:first').attr('data-fullname') 
+        + "\r\n" + $('ul#extList li:first').attr('data-extension'));
+    }
+    $('ul#extList').html("").hide();
     var oButton = {
       cell: $(this).parents("a").attr("id"),
       extension: $('form#extEdit input[name="extension"]').val(),
@@ -599,7 +656,8 @@ $(document).ready(function() {
       var request = objectStore.delete(oButton.cell);
     }
     request.onsuccess = function(event) {
-      console.log(event.target.result);
+      $('form#extEdit input[name="extension"]').val("");
+      $('form#extEdit textarea[name="label"]').val("");
     };
     return false;
   });
