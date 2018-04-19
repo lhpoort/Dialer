@@ -1,5 +1,6 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, clipboard} = require('electron')
 app.commandLine.appendSwitch('ignore-certificate-errors', true)
+const windowStateKeeper = require("electron-window-state");
 const path = require('path')
 const url = require('url')
   
@@ -8,8 +9,24 @@ const url = require('url')
   let win
   
   function createWindow () {
+    let mainWindowState = windowStateKeeper({ x: 20
+      , y: 20
+      , defaultWidth: 300
+      , defaultHeight: 700
+    });
     // Create the browser window.
-    win = new BrowserWindow({x: 20, y: 20, useContentSize: true, width: 300, alwaysOnTop: true, height: 780, icon: path.join(__dirname, 'CSS/Components/logo.png')})
+    win = new BrowserWindow({useContentSize: true
+      , webPreferences: { plugins: true }
+      , x: mainWindowState.x
+      , y: mainWindowState.y
+      , width: mainWindowState.width
+      , height: mainWindowState.height
+      , isMaximized: mainWindowState.isMaximized
+      , isFullScreen: mainWindowState.isFullScreen
+      , alwaysOnTop: true
+      , icon: path.join(__dirname, 'CSS/Components/icons/PNG/48x48.png')});
+
+    mainWindowState.manage(win);
   
     // and load the index.html of the app.
     win.loadURL(url.format({
@@ -54,3 +71,9 @@ const url = require('url')
   
   // In this file you can include the rest of your app's specific main process
   // code. You can also put them in separate files and require them here.
+  app.on('browser-window-focus', () => {
+    const sSelection = clipboard.readText('selection');
+    if(/^[0-9\+\(\)\-\s]+$/.test(sSelection)) {
+      win.webContents.send('callMe', sSelection);
+    }
+  });

@@ -1,6 +1,6 @@
 const dbName = "pbxConsole";
 const maxExt = 100;
-const refreshRate = 30000;
+const refreshRate = 5000;
 const timeout = 3000;
 var sServer = null; 
 var sExtension = null;
@@ -87,7 +87,7 @@ function getStatus() {
   $.post(sServer + "get_call_activity.php", {"call": "ACTIVITY", "extensions": aExtensions}, function(oResult){
     $('section.console a[data-extension] div.led').attr("class", "led");
     var cExtensions = oResult.extensions;
-    for(var e in cExtensions) {
+    for(const e in cExtensions) {
       var oExtension = cExtensions[e]; 
       /*** CHECK IF CONNECTED ***/
       if(oExtension.connected !== true) {
@@ -102,6 +102,7 @@ function getStatus() {
 
       /*** CHECK CALL STATE ***/
       switch(oExtension.callstate) {
+        case "EARLY": 
         case "ACTIVE": 
         case "RINGING": 
         case "RING_WAIT": 
@@ -112,6 +113,15 @@ function getStatus() {
           break;        
       }
     }
+    var cCallFlows = oResult.callFlows;
+    for(const cf in cCallFlows) {
+      const oCallFlow = cCallFlows[cf];
+      if(oCallFlow.call_flow_status === "true") {
+        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('busy');
+      } else {
+        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('available');        
+      }
+    } 
   }).always(function(){
     window.setTimeout(getStatus, refreshRate);
   });
@@ -218,8 +228,9 @@ function fillConsole() {
     var cursor = event.target.result;
     if (cursor) {
       $("#" + cursor.key).attr("data-extension", cursor.value.extension)
-        .attr("data-label", cursor.value.label)
-        .append(cursor.value.label.replace(/[\r\n]+/g, "<br>"));
+      .attr("data-label", cursor.value.label)
+      .attr("data-type", cursor.value.command ? cursor.value.command : "ext")
+      .append(cursor.value.label.replace(/[\r\n]+/g, "<br>"));
       cursor.continue();
     } else if(sServer !== null) {
       getStatus();
@@ -268,15 +279,24 @@ $(document).ready(function() {
   
   /*** SEARCH CONTACTS ***/
   $("#search").on("keyup", function() {
-    if(this.value.length > 2) {
+    $('a#add').removeClass('call').attr('title', 'Contact toevoegen');
+    if(/^[0-9\(\)\+\s]+$/.test(this.value)) {
+      $('a#add').addClass('call').attr('title', 'Telefoonnummer bellen');
+    } else if(this.value.length > 2) {
       shoContacts(this.value);
     } else if(this.value.length == 0) {
       shoContacts("");
     }
   });
 
+  /*** NUMMER BELLEN ***/
+  $("section").on("click", "a#add.call", function() {
+    var sNumber =  $('input#search').val();
+    calling(sNumber);
+  });
+  
   /*** ADD CONTACT ***/
-  $("section").on("click", "a#add", function() {
+  $("section").on("click", "a#add:not(.call)", function() {
     $("input[name=contact_uuid]").val("");
     $("input[name=contact_name_prefix]").val([""]);
     $("input[name=contact_name_given]").val("");
@@ -293,9 +313,12 @@ $(document).ready(function() {
     $("section#list").hide();
     $("section#detail").show();
   });
-  
-  $("section").on("click", "a[data-phone-number]", function(){
-    var sNumber =  this.getAttribute("data-phone-number");
+
+  function calling(sNumber) {
+    /*** RENUMBER PHONE NUMBER **/
+    sNumber = sNumber.replace(/[\s\)\-]+/g, '')
+      .replace(/\+?\(/, "00");
+    console.log(sNumber)
     if(sNumber != "0") {
       $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber}, function(oResult){
         if(oResult.code != 0) {
@@ -314,6 +337,11 @@ $(document).ready(function() {
     } else {
       alert("Er is geen telefoonnummer bekend voor dit contact.");
     }
+
+  }
+  $("section").on("click", "a[data-phone-number]", function() {
+    var sNumber =  this.getAttribute("data-phone-number");
+    calling(sNumber);
   });
 
   /*** CONTACT EDITING ***/
@@ -596,19 +624,31 @@ $(document).ready(function() {
     if(this.value.length > 2) {
       var sSearch =  this.value;
       iGetExt = window.setTimeout(function() {
-        $.get(sServer + 'extensions.php', {search: sSearch}, function(cExtensions){
-          if(cExtensions.length == 0) return false;
-          $('ul#extList').html("").show();
-          for(const e in cExtensions) {
-            var oExtension = cExtensions[e];
-            oExtension.fullname = oExtension.directory_last_name 
-            ? oExtension.directory_first_name 
-              + (oExtension.directory_mid_fix ? oExtension.directory_mid_fix : " ")
-              + oExtension.directory_last_name
-            : oExtension.description;
-            $('ul#extList').append('<li data-extension="' +oExtension.extension+ '" data-fullname="' +oExtension.fullname+ '">'  
-              + oExtension.extension + ": " + oExtension.fullname
-              + "</li>");
+        $('ul#extList').html("").show();
+        $.get(sServer + 'extensions.php', {search: sSearch}, function(oResult){
+          var cExtensions = oResult.extensions;
+          var cCallFlows = oResult.callFlows;
+          if(cExtensions.length > 0) {
+            for(const e in cExtensions) {
+              var oExtension = cExtensions[e];
+              oExtension.fullname = oExtension.directory_last_name 
+              ? oExtension.directory_first_name 
+                + (oExtension.directory_mid_fix ? oExtension.directory_mid_fix : " ")
+                + oExtension.directory_last_name
+              : oExtension.description;
+              $('ul#extList').append('<li data-extension="' +oExtension.extension+ '" data-fullname="' +oExtension.fullname+ '" data-type="ext">'  
+                + oExtension.extension + ": " + oExtension.fullname
+                + "</li>");
+            }
+          } else if(cCallFlows.length > 0) {
+            for(const cf in cCallFlows) {
+              var oCallFlow = cCallFlows[cf];
+              $('ul#extList').append('<li data-extension="' + oCallFlow.call_flow_extension 
+                + '" data-fullname="' + oCallFlow.call_flow_name 
+                + '" data-type="cf">'  
+                + oCallFlow.call_flow_extension + ": " + oCallFlow.call_flow_name
+                + "</li>");
+            }
           }
         })}, 300);
     } else {
@@ -618,6 +658,7 @@ $(document).ready(function() {
   /** CHOOSE RETREIVED EXTENSION ***/
   $("section.console").on("click", "ul#extList li", function() {
     $('form#extEdit input[name="extension"]').val($(this).attr('data-extension'));
+    $('form#extEdit input[name="extension"]').attr("data-type", $(this).attr('data-type'));
     $('form#extEdit textarea[name="label"]').val($(this).attr('data-fullname') + "\r\n" + $(this).attr('data-extension'));
     $('ul#extList').html("").hide();
   });
@@ -639,10 +680,11 @@ $(document).ready(function() {
       cell: $(this).parents("a").attr("id"),
       extension: $('form#extEdit input[name="extension"]').val(),
       label: $('form#extEdit textarea[name="label"]').val(),
-      command: ""};
-    $(this).parents("a").attr("data-extension", oButton.extension);
-    $(this).parents("a").attr("data-label", oButton.label);
-    $(this).parents("a").removeClass("edit")
+      command: $('form#extEdit input[name="extension"]').attr("data-type")};
+    $(this).parents("a").attr("data-extension", oButton.extension)
+      .attr("data-label", oButton.label)
+      .attr("data-type", oButton.command)
+      .removeClass("edit")
       .prepend('<div class="led" title="Wijzigen"></div>' + $('form#extEdit textarea[name="label"]').val().replace(/[\r\n]+/g, "<br>"));
     $("section.console").append($("form#extEdit"));
     $("form#extEdit :input").val("");
@@ -666,23 +708,46 @@ $(document).ready(function() {
     try {
       var sNumber =  this.getAttribute("data-extension");
       if(sNumber == "0") throw new Error("Er is geen telefoonnummer bekend voor dit contact.");
-      if($(this).find("div.led.available").length == 0) throw new Error("Dit toestel is niet beschikbaar.")
-      $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber}, function(oResult){
-        if(oResult.code != 0) {
-          var sMessage = "Fout onbekend."
-          switch(oResult.code) {
-            case 1050:
-              sMessage = "Uw telefoon is niet verbonden.";
-              break;
-            default:
-              sMessage = oResult.message;
-              break;
+      /*** CALL FLOW */
+      if(this.getAttribute("data-type") == "cf") {
+        var oLed = $(this).find("div.led");
+        $.post(sServer + "callFlows.php", {"callflow": sNumber}, function(oResult){
+          /*** CLEAR CURRENT STATUS ***/
+          oLed.attr("class","led");
+          if(oResult.callFlow.call_flow_status === "true") {
+            oLed.addClass("busy");
+          } else {
+            oLed.addClass("available");
           }
-          alert(sMessage);
-        } 
-      });
+        })
+      } else {
+        if($(this).attr("data-type") == "ext" && $(this).find("div.led.available").length == 0) throw new Error("Dit toestel is niet beschikbaar.")
+        $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber}, function(oResult){
+          if(oResult.code != 0) {
+            var sMessage = "Fout onbekend."
+            switch(oResult.code) {
+              case 1050:
+                sMessage = "Uw telefoon is niet verbonden.";
+                break;
+              default:
+                sMessage = oResult.message;
+                break;
+            }
+            alert(sMessage);
+          } 
+        });  
+      }
     } catch(e){
       alert(e.message)
     }
   });
+
+  /*** event for pasting selected phonenumber */
+  if(window.require) {
+    require('electron').ipcRenderer.on('callMe', (event, sNumber) => {
+      $('input#search').val(sNumber);
+      $('a#add').addClass('call').attr('title', 'Telefoonnummer bellen');
+    })
+  }
 });
+
