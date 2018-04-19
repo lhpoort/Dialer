@@ -78,7 +78,9 @@ function shoContacts(search) {
 }
   
 /*** SHOW CONSOLE STATUS ***/
+var bStatus = null;
 function getStatus() {
+  bStatus = 1;
   if(sServer === null) return false;
   var aExtensions = [];
   $('section.console a[data-extension]').each(function(){
@@ -123,7 +125,7 @@ function getStatus() {
       }
     } 
   }).always(function(){
-    window.setTimeout(getStatus, refreshRate);
+    bStatus = window.setTimeout(getStatus, refreshRate);
   });
 }
 
@@ -700,6 +702,7 @@ $(document).ready(function() {
     request.onsuccess = function(event) {
       $('form#extEdit input[name="extension"]').val("");
       $('form#extEdit textarea[name="label"]').val("");
+      if(bStatus === null) getStatus();
     };
     return false;
   });
