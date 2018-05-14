@@ -24,7 +24,7 @@ const url = require('url')
       , isMaximized: mainWindowState.isMaximized
       , isFullScreen: mainWindowState.isFullScreen
       , alwaysOnTop: true
-      , icon: path.join(__dirname, 'CSS/Components/icons/PNG/48x48.png')});
+      , icon: path.join(__dirname, 'CSS/Components/icons/PNG/blogo.png')});
 
     mainWindowState.manage(win);
   
