@@ -87,7 +87,7 @@ img {
 }
 section#list address{
   width: 100%;
-  height: calc(100vh - 142px);
+  height: calc(100vh - 102px);
   float: left;
   margin: 0px 0px 0px 0px;
   overflow: auto;
@@ -107,7 +107,26 @@ address a {
 }
 
 section#list address a {
-  width: calc(100% - 84px);
+  width: calc(100% - 62px);
+  white-space: nowrap;
+  overflow-x: hidden;
+  margin-left: 15px;
+}
+
+section#list address a.full:hover {
+  animation-duration: 3s;
+  animation-name: slideleft;
+  animation-iteration-count: infinite;
+}
+
+@keyframes slideleft {
+  from {
+    direction: ltr;
+  }
+
+  to {
+    direction: rtl;
+  }
 }
 
 address::-webkit-scrollbar {
@@ -465,7 +484,7 @@ section#settings button{
 
 footer {
   background-image: url(Components/footerBalk.png);
-  height: 50px;
+  height: 9px;
   width: 100%;
   overflow: auto;
   box-shadow: -1px -3px 20px 0;

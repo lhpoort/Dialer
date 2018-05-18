@@ -55,7 +55,7 @@ function shoContacts(search) {
     return true;
   }
   iSearch = 0;
-  $.get(sServer + 'contacts.php', {"order_by": "contact_nickname", "search_all": sSearch},function(cContacts){
+  $.get(sServer + 'contacts.php', {"order_by": "TRIM(contact_organization), contact_name_given", "search_all": sSearch},function(cContacts){
     $('section#list address').html('');
     for(var c in cContacts) {
       var oContact = cContacts[c];
@@ -66,10 +66,13 @@ function shoContacts(search) {
       } else {
         sNumber = "0";
       }
-      $('section#list address').append('<a href="#" data-phone-number="' + sNumber + '" alt="Click to call">' 
-        + (oContact.contact_nickname !== null ? " " + oContact.contact_nickname : "")
-        + (oContact.contact_name_suffix !== null ? " " + oContact.contact_name_suffix : "")
-        + (oContact.contact_name_family !== null ? " " + oContact.contact_name_family : "") + "</a>"
+      var sFullname = (oContact.contact_organization !== null && oContact.contact_organization.replace(/\s/g, "").length > 0 ? oContact.contact_organization + ": " : "")
+      + (oContact.contact_name_given !== null ? oContact.contact_name_given + " " : "")
+      + (oContact.contact_name_suffix !== null ? oContact.contact_name_suffix + " " : "")
+      + (oContact.contact_name_family !== null ? oContact.contact_name_family + " " : "").slice(0, -1);
+      var sClassAnim = sFullname.length > 27 ? ' class="full"' : '';
+      $('section#list address').append('<a href="#" data-phone-number="' + sNumber + '" alt="Click to call" title="' + sFullname + '"' +sClassAnim+ '>' 
+        + sFullname + "</a>"
         + '<a class="more" rel="' + oContact.contact_uuid + '"href="#">&gt;</a>')
     }
     iSearch = null;
@@ -528,16 +531,18 @@ $(document).ready(function() {
   });
   
   /*** SHOW/HIDE SETTINGS ***/
-  $("button#docon").on("click", function() {
-    if($(window).width() > 830) {
+  $("button#docon").on("click", function(e) {
+    if($(window).width() > 830 && !e.ctrlKey) {
       $(this).removeClass("open");
       window.resizeBy(-282, 0);
-    } else if($(this).hasClass("open") && $(window).width() > 560) {
+    } else if($(this).hasClass("open") && $(window).width() > 560 && !e.ctrlKey) {
       $(this).html('&lt;')
       window.resizeBy(282, 0);
-    } else if($(this).hasClass("open")) {
+    } else if($(this).hasClass("open") && !e.ctrlKey) {
       window.resizeBy(282, 0);
-    } else  {
+    } else if(!$(this).hasClass("open") && e.ctrlKey && $(window).width() < 830) {
+      window.resizeBy(282, 0);
+    } else if($(window).width() > 560) {
       window.resizeBy(-282, 0);
       $(this).html('&gt;')
       $(this).addClass("open");
