@@ -107,10 +107,47 @@ address a {
 }
 
 section#list address a {
+  position: relative;
   width: calc(100% - 62px);
   white-space: nowrap;
   overflow-x: hidden;
   margin-left: 15px;
+}
+
+section#list address a:not(.full):hover {
+  overflow: visible;
+  white-space: normal;
+}
+
+section#list address a ul {
+  position: absolute;
+  display: none;
+  list-style: none;
+  background-color: #152722;
+  top: -12px;
+  z-index: 10;
+  right: 0;
+  border: 1px solid #cacaca;
+  border-radius: 7px;
+  padding: 5px;
+}
+
+section#list address a:nth-last-child(2) ul {
+  bottom: 0px;
+  top: auto;
+}
+
+section#list address a ul li {
+  padding: 3px;
+  opacity: 0.5;
+}
+
+section#list address a ul li:hover {
+  opacity: 1.0;
+}
+
+section#list address a:hover ul {
+  display: block;
 }
 
 section#list address a.full:hover {
@@ -127,6 +164,7 @@ section#list address a.full:hover {
   to {
     direction: rtl;
   }
+
 }
 
 address::-webkit-scrollbar {
@@ -246,7 +284,7 @@ section.console{
   width: calc(100vw - 276px);
 }
 section.console address {
-  min-width: 240px;
+  min-width: 180px;
   float: left;
   width: calc(50% - 20px);
   padding: 0 0 0 5px;
@@ -257,6 +295,9 @@ section.console a {
   border-radius: 3px;
   width: calc(100% - 15px);
   margin: 3px 0;
+}
+section.console a:not(.del) {
+  min-width: 180px;
 }
 .led{
   float: left;
@@ -492,14 +533,14 @@ footer {
   bottom: 0;
 }
 
-@media screen and (max-width: 750px) {
+@media screen and (max-width: 690px) {
   section.console address {
     width: calc(100% - 35px);
   }
 }
 
-@media screen and (max-width: 540px) {
+@media screen and (max-width: 320px) {
   section.console address {
-  display:none;
+    display: none;
   }
 }

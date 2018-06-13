@@ -62,7 +62,11 @@ function shoContacts(search) {
       if(oContact.contact_nickname === null && oContact.contact_name_family === null) continue;
       
       if(oContact.contact_phones.length > 0) {
-        var sNumber = oContact.contact_phones[0].phone_number;
+        var aNumbers = [];
+        oContact.contact_phones.forEach(function(oPhone){
+          aNumbers.push(oPhone.phone_number);
+        });
+        var sNumber = aNumbers.join(",");
       } else {
         sNumber = "0";
       }
@@ -319,13 +323,12 @@ $(document).ready(function() {
     $("section#detail").show();
   });
 
-  function calling(sNumber) {
+  function calling(sNumber, sName) {
     /*** RENUMBER PHONE NUMBER **/
     sNumber = sNumber.replace(/[\s\)\-]+/g, '')
       .replace(/\+?\(/, "00");
-    console.log(sNumber)
     if(sNumber != "0") {
-      $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber}, function(oResult){
+      $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber, "destination_name": (sName ? sName: sNumber)}, function(oResult){
         if(oResult.code != 0) {
           var sMessage = "Fout onbekend."
           switch(oResult.code) {
@@ -344,9 +347,31 @@ $(document).ready(function() {
     }
 
   }
+  $("section").on("mouseover", "a[data-phone-number]", function() {
+    var aNumbers = this.getAttribute('data-phone-number').split(/\,/);
+    if(aNumbers.length > 1) {
+      if(this.getElementsByTagName('ul').length > 0) return true;
+      var oUl = document.createElement('ul');
+      aNumbers.forEach(function(sNumber){
+        var oLi = document.createElement('li');
+        oLi.innerHTML = sNumber;
+        oUl.appendChild(oLi);
+      });
+      this.appendChild(oUl);
+      this.setAttribute("data-phone-number","");
+      this.classList.remove("full");
+    }
+  });
+
   $("section").on("click", "a[data-phone-number]", function() {
     var sNumber =  this.getAttribute("data-phone-number");
-    calling(sNumber);
+    var aTitle =  this.getAttribute("title").split(/\:\s*/);
+    var sTitle = aTitle.length > 1 ? aTitle[1] : aTitle[0];
+    calling(sNumber, sTitle);
+  });
+
+  $("section").on("click", "a[data-phone-number] ul li", function() {
+    this.parentNode.parentNode.setAttribute('data-phone-number', this.textContent);
   });
 
   /*** CONTACT EDITING ***/
@@ -715,6 +740,8 @@ $(document).ready(function() {
   $("section.console").on("click", "a[data-extension]:not(.edit)", function(){
     try {
       var sNumber =  this.getAttribute("data-extension");
+      var aName = this.getAttribute("data-label").split(/[\r\n]+/);
+      var sContactName = aName[0];
       if(sNumber == "0") throw new Error("Er is geen telefoonnummer bekend voor dit contact.");
       /*** CALL FLOW */
       if(this.getAttribute("data-type") == "cf") {
@@ -730,7 +757,7 @@ $(document).ready(function() {
         })
       } else {
         if($(this).attr("data-type") == "ext" && $(this).find("div.led.available").length == 0) throw new Error("Dit toestel is niet beschikbaar.")
-        $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber}, function(oResult){
+        $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber, "destination_name": sContactName}, function(oResult){
           if(oResult.code != 0) {
             var sMessage = "Fout onbekend."
             switch(oResult.code) {
