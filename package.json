@@ -1,6 +1,6 @@
 {
   "name": "dialer",
-  "version": "2.0.0",
+  "version": "2.0.0015",
   "description": "Web based dailer app for Fusion PBX",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "web based",
     "electron"
   ],
-  "author": "L.H. Poort Anan6 B.V.",
+  "author": "L.H. Poort Anan6 Services",
   "license": "ISC",
   "devDependencies": {
     "electron": "^1.8.3",

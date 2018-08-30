@@ -11,7 +11,7 @@ body{
 }
 
 header {
-  height: 50px;
+  height: auto;
   width: 100%;
   background-image: url('Components/headBalk.png');
 }
@@ -19,13 +19,24 @@ h1{
   color:white;
   font-style: italic;
   font-size: 14px;
-  margin: 0;
-  padding: 15px 0 0 15px;
+  margin: 0 0 0 9px;
+  line-height: 30px;
 }
 
 a {
   text-decoration: none;
   color: #fff;
+}
+
+a#doset {
+  position: absolute;
+  width: 27px;
+  height: 27px;
+  top: 3px;
+  right: 3px;
+  background-image: url('Components/settings.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 button:focus {
   outline:0;
@@ -76,9 +87,9 @@ a#add.call {
 }
 
 header img {
-  width: 30px;
+  width: 24px;
   float: right;
-  margin: -20px 10px 0 0;
+  margin: -27px 7px 0 0;
 }
 img {
   width:30px;
@@ -132,7 +143,7 @@ section#list address a ul {
   padding: 5px;
 }
 
-section#list address a:nth-last-child(2) ul {
+section#list address a:nth-last-child(2):nth-of-type(n+6) ul {
   bottom: 0px;
   top: auto;
 }

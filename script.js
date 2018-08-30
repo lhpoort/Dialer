@@ -2,6 +2,7 @@ const dbName = "pbxConsole";
 const maxExt = 100;
 const refreshRate = 5000;
 const timeout = 3000;
+const appVersion = window.require ? window.require('electron').remote.app.getVersion() : "XXX";
 var sServer = null; 
 var sExtension = null;
 var db;
@@ -126,9 +127,9 @@ function getStatus() {
     for(const cf in cCallFlows) {
       const oCallFlow = cCallFlows[cf];
       if(oCallFlow.call_flow_status === "true") {
-        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('busy');
+        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('available');
       } else {
-        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('available');        
+        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('busy');        
       }
     } 
   }).always(function(){
@@ -220,7 +221,7 @@ function setSettings(){
         $('input[name="pbx_password"]').val(cursor.value.password), 
         cursor.continue();
       } else {
-        $("h1").text("Instellingen");
+        $("h1").text("Instellingen (" + appVersion + ")");
         $("div#contact").show();
         $("a#doset").addClass("on");
         $("section#list, section#detail").hide();
@@ -256,9 +257,13 @@ $(document).ready(function() {
 
   /*** GENERAL DRAG AND DROP FUNCTIONS ***/
   var sID = null;
+  var sContext = null;
   function doDragStart(ev) {
     $(ev.currentTarget).addClass('drag');
     sID = ev.originalEvent.target.id;
+    var oField = ev.originalEvent.target;
+    while(oField.tagName != "FIELDSET")  oField = oField.parentNode;
+    sContext = oField.className;
     ev.effectAllowed = "move";
   }
 
@@ -272,6 +277,8 @@ $(document).ready(function() {
       ev.preventDefault();
       var oDiv = ev.target
       if(oDiv.tagName != "DIV")  oDiv = oDiv.parentNode;
+      var oField = oDiv.parentNode;
+      if(oField.className != sContext) return false;
       ev.currentTarget.insertBefore(document.getElementById(sID), oDiv);
       sID = null;  
       if(fCallback) fCallback();
@@ -282,14 +289,15 @@ $(document).ready(function() {
   }
 
   function doDragEnd(ev) { 
-    $('div.drag').removeClass('drag');
+    $('div.drag').removeClass('drag').prop("draggable", false);
     $('fieldset.over').removeClass('over');
+    sContext = null;
   }
   
   /*** SEARCH CONTACTS ***/
   $("#search").on("keyup", function() {
     $('a#add').removeClass('call').attr('title', 'Contact toevoegen');
-    if(/^[0-9\(\)\+\s]+$/.test(this.value)) {
+    if(/^[0-9\(\)\+\s\-]+$/.test(this.value)) {
       $('a#add').addClass('call').attr('title', 'Telefoonnummer bellen');
     } else if(this.value.length > 2) {
       shoContacts(this.value);
@@ -392,7 +400,7 @@ $(document).ready(function() {
       for(var p in oResult.contact_phones) {
         iLast += 100;
         var oPhone = oResult.contact_phones[p];
-        $("fieldset.phone div.add").before('<div id="' + oPhone.contact_phone_uuid + '" draggable="true"><a role="button" class="mov"></a>'
+        $("fieldset.phone div.add").before('<div id="' + oPhone.contact_phone_uuid + '" draggable="false"><a role="button" class="mov"></a>'
           + '<input type="hidden" name="contact_phones[' + oPhone.contact_phone_uuid +  '][sequence]" value="' + iLast + '">'
           + '<input type="text" name="contact_phones[' + oPhone.contact_phone_uuid +  '][label]" placeholder="' + oPhone.phone_label + '" class="label" value="' + oPhone.phone_label + '">'
           + '<input type="text" name="contact_phones[' + oPhone.contact_phone_uuid +  '][number]" placeholder="telefoonnummer" value="' + oPhone.phone_number + '">'
@@ -407,7 +415,7 @@ $(document).ready(function() {
       for(var e in oResult.contact_emails) {
         iLast += 100;
         var oEmail = oResult.contact_emails[e];
-        $("fieldset.email div.add").before('<div id="' + oEmail.contact_email_uuid + '" draggable="true"><a role="button" class="mov"></a>'
+        $("fieldset.email div.add").before('<div id="' + oEmail.contact_email_uuid + '" draggable="false"><a role="button" class="mov"></a>'
           + '<input type="hidden" name="contact_emails[' + oEmail.contact_email_uuid +  '][sequence]" value="' + iLast + '">'
           + '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid +  '][label]" placeholder="' + oEmail.email_label + '" class="label" value="' + oEmail.email_label + '">'
           + '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid +  '][email]" placeholder="e-mailadres" value="' + oEmail.email_address + '">'
@@ -475,7 +483,10 @@ $(document).ready(function() {
       })
     }).on('dragover', 'fieldset.phone', doDragOver);
   $('section#detail').on('drag', 'fieldset.phone div:not(.add)', doDragStart).on('dragend', 'fieldset.phone div:not(.add)', doDragEnd);
-  $('section#detail').on('click', 'fieldset.phone div a.mov', function(){
+  $('section#detail').on('mousedown', 'fieldset.phone div a.mov', function(){
+    $(this).parent().prop('draggable',true);
+  });
+  $('section#detail').on('mousedown', 'fieldset.email div a.mov', function(){
     $(this).parent().prop('draggable',true);
   });
   /** ADD PHONE ***/
@@ -664,10 +675,19 @@ $(document).ready(function() {
             for(const e in cExtensions) {
               var oExtension = cExtensions[e];
               oExtension.fullname = oExtension.directory_last_name 
-              ? oExtension.directory_first_name 
+              ? (oExtension.directory_first_name ? oExtension.directory_first_name : "")
                 + (oExtension.directory_mid_fix ? oExtension.directory_mid_fix : " ")
                 + oExtension.directory_last_name
-              : oExtension.description;
+              : (oExtension.directory_first_name 
+                ? oExtension.directory_first_name 
+                : oExtension.description 
+                  ? oExtension.description
+                  : "Onbekend");
+              if(oExtension.fullname) {
+                oExtension.fullname = oExtension.fullname.replace(/(^\s+|\s+$)/, "");
+              } else {
+                oExtension.fullname = "Onbekend";
+              }
               $('ul#extList').append('<li data-extension="' +oExtension.extension+ '" data-fullname="' +oExtension.fullname+ '" data-type="ext">'  
                 + oExtension.extension + ": " + oExtension.fullname
                 + "</li>");
@@ -684,6 +704,7 @@ $(document).ready(function() {
           }
         })}, 300);
     } else {
+      $('textarea[name=label]').val("");
       $('ul#extList').html("").hide();
     }
   });
@@ -750,9 +771,9 @@ $(document).ready(function() {
           /*** CLEAR CURRENT STATUS ***/
           oLed.attr("class","led");
           if(oResult.callFlow.call_flow_status === "true") {
-            oLed.addClass("busy");
-          } else {
             oLed.addClass("available");
+          } else {
+            oLed.addClass("busy");
           }
         })
       } else {
