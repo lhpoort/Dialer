@@ -16,7 +16,7 @@ const url = require('url')
     });
     // Create the browser window.
     win = new BrowserWindow({useContentSize: true
-      , webPreferences: { plugins: true }
+      , webPreferences: { plugins: true, devTools: true}
       , x: mainWindowState.x
       , y: mainWindowState.y
       , width: mainWindowState.width
@@ -24,10 +24,9 @@ const url = require('url')
       , isMaximized: mainWindowState.isMaximized
       , isFullScreen: mainWindowState.isFullScreen
       , alwaysOnTop: true
-      , icon: path.join(__dirname, 'CSS/Components/icons/PNG/blogo.png')});
+      , icon: path.join(__dirname, 'CSS/Components/icons/png/128x128.png')});
 
     mainWindowState.manage(win);
-  
     // and load the index.html of the app.
     win.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),

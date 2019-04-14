@@ -8,6 +8,13 @@ var sExtension = null;
 var db;
 var request = indexedDB.open(dbName, 2);
 var bLoaded = false;
+var bSettings = null;
+
+/** AJAX SETTINGS **/
+$.ajaxSetup({
+  cache: false,
+  timeout: timeout
+});
 
 request.onsuccess = function(event) {
   db = event.target.result;
@@ -76,7 +83,7 @@ function shoContacts(search) {
       + (oContact.contact_name_suffix !== null ? oContact.contact_name_suffix + " " : "")
       + (oContact.contact_name_family !== null ? oContact.contact_name_family + " " : "").slice(0, -1);
       var sClassAnim = sFullname.length > 27 ? ' class="full"' : '';
-      $('section#list address').append('<a href="#" data-phone-number="' + sNumber + '" alt="Click to call" title="' + sFullname + '"' +sClassAnim+ '>' 
+      $('section#list address').append('<a class="OK" href="#" data-phone-number="' + sNumber + '" alt="Click to call" title="' + sFullname + '"' +sClassAnim+ '>' 
         + sFullname + "</a>"
         + '<a class="more" rel="' + oContact.contact_uuid + '"href="#">&gt;</a>')
     }
@@ -88,6 +95,7 @@ function shoContacts(search) {
 /*** SHOW CONSOLE STATUS ***/
 var bStatus = null;
 function getStatus() {
+  if(bStatus > 1) window.clearTimeout(bStatus);
   bStatus = 1;
   if(sServer === null) return false;
   var aExtensions = [];
@@ -171,6 +179,7 @@ function login(oSettings, fCallback){
       /*** SHOW EXTENSION DETAILS */
       console.log(oResult.message);
       if(fCallback) fCallback();
+      bSettings = true;
     } else if(oResult.message) {
       if(!$("a#doset").hasClass("on")) setSettings();
       oButton.text("verbinden");
@@ -197,7 +206,7 @@ function doSettings() {
       cursor.continue();
     } else if(sServer === null) {
       setSettings();
-    } else {
+    } else if(bSettings === null) {
       login(oSettings, function(){
         shoContacts();
       });
@@ -227,6 +236,7 @@ function setSettings(){
         $("section#list, section#detail").hide();
         $("section#settings").show();
       }
+      bSettings = 1;
     }
   }
 }
@@ -237,14 +247,15 @@ function fillConsole() {
   db.transaction("buttons").objectStore("buttons").openCursor().onsuccess = function(event) {
     var cursor = event.target.result;
     if (cursor) {
+      $("#" + cursor.key + " span").html("");
       $("#" + cursor.key).attr("data-extension", cursor.value.extension)
       .attr("data-label", cursor.value.label)
       .attr("data-type", cursor.value.command ? cursor.value.command : "ext")
-      .append(cursor.value.label.replace(/[\r\n]+/g, "<br>"));
+      .append("<span>" + cursor.value.label.replace(/[\r\n]+/g, "<br>") + "</span>");
       cursor.continue();
     } else if(sServer !== null) {
       getStatus();
-    } else {
+    } else if(bSettings === null) {
       doSettings()
     }
   }
@@ -366,7 +377,7 @@ $(document).ready(function() {
         oUl.appendChild(oLi);
       });
       this.appendChild(oUl);
-      this.setAttribute("data-phone-number","");
+      this.setAttribute("data-phone-number",aNumbers[0]);
       this.classList.remove("full");
     }
   });
@@ -445,7 +456,6 @@ $(document).ready(function() {
       && oContact.contact_organization == "" 
       && oContact.contact_name_family == ""
       && oContact.contact_name_given == "") return true;
-
     $.post(sServer + "contacts.php", oContact, function(oResult) {
       $("input[name=contact_uuid]").val(oResult.contact_uuid);
       for(var p in oResult.contact_phones){
@@ -469,6 +479,21 @@ $(document).ready(function() {
     });
   }
   $("section#detail").on("change", "form fieldset input", updContact);
+
+  /*** DELETE CONTACT ***/
+  $("section#detail").on("click", "a#delcontact", function() {
+    if(confirm('Wilt u dit contact verwijderen?')) {
+      var $Form = $('form#fContact');
+      $.ajax({
+        method: "DELETE",
+        url: sServer + "contacts.php", 
+        data: {"contact_uuid": $('input#contact_uuid').val()}, 
+        success: function(oResult) {
+          $Form.find(":input").val('');
+        }
+      });  
+    }
+  });
 
   /*** EDIT PHONES ***/
   /*** INIT DRAG AND DROP ***/
@@ -599,7 +624,7 @@ $(document).ready(function() {
     }
     login(oSettings, function(){
       shoContacts();
-      getStatus();
+      if(bStatus === null) getStatus();
     });
   });
   /*** EXTENSION EDITING ***/
@@ -632,20 +657,24 @@ $(document).ready(function() {
     });
   });
   /*** INIT CONSOLE ***/
-  $("section.console address").html("");
-  var iHeight = $("section.console").height() - $("section.console address").height();
-  var iMax = 1;
-  while(iHeight > $("section.console address").height()) {
-    $("section.console address").each(function(index) {
-      var sCol = "ABCDEFG".substr(index, 1);
-      var iRow = this.childNodes.length + 1;
-      var sCell = sCol + iRow;
-      $(this).append('<a id="' + sCell + '" href="#" class="back"><div class="led" title="Wijzigen"></div></a>');
-    });
-    if(iMax++ > maxExt) break;
+  function initConsole() {
+    $("section.console address").html("");
+    var iHeight = $("section.console").height();
+    var iMax = 1;
+    while($("section.console address").height() < iHeight) {
+      $("section.console address").each(function(index) {
+        var sCol = "ABCDEFG".substr(index, 1);
+        var iRow = this.childNodes.length + 1;
+        var sCell = sCol + iRow;
+        $(this).append('<a id="' + sCell + '" href="#" class="back"><div class="led" title="Wijzigen"></div></a>');
+      });
+      if(iMax++ > maxExt) break;
+    }
+    if(db) fillConsole();  
   }
+  initConsole();  
+  $(window).on('resize', initConsole);
   
-  if(db) fillConsole();  
   bLoaded = true;
   
   $("section.console").on("click", "div.led", function() {

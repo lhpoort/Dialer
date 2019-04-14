@@ -1,3 +1,12 @@
+/*** DISABLE DRAG OF HTML ELEMENTS ***/
+a, img, 
+a:after, img:after,
+a::before, img::before {
+	-webkit-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-app-region: no-drag;
+}
+
 html, body{
   margin: 0px;
   height: 100vh;
@@ -98,7 +107,7 @@ img {
 }
 section#list address{
   width: 100%;
-  height: calc(100vh - 102px);
+  height: calc(100vh - 80px);
   float: left;
   margin: 0px 0px 0px 0px;
   overflow: auto;
@@ -212,7 +221,7 @@ section form fieldset {
 }
 
 section form > fieldset {
-  padding: 0 10px 0 20px;
+  padding: 0 10px 0 0;
   width: calc(100% - 30px);
 }
 
@@ -225,8 +234,10 @@ section form fieldset label {
 
 section form fieldset > div {
   position : relative;
-  margin: 0 0 7px 0;
+  margin: 8px 0 7px 0;
   width: 100%;
+  padding: 0 0 0 20px;
+  min-height: 27px;
 }
 
 section#detail form fieldset legend {
@@ -243,9 +254,8 @@ section#detail form fieldset.email div input.label,
 section#detail form fieldset.phone div input.label {
   width: 72px;
 }
-
-section#detail form fieldset.email div a, 
-section#detail form fieldset.phone div a {
+section#detail a, 
+section#detail form fieldset.name div a {
   display: none;
   opacity: 0.54;
   position: absolute;
@@ -255,29 +265,43 @@ section#detail form fieldset.phone div a {
   top: 7px;
 }
 
-section#detail form fieldset.email div:hover a, 
-section#detail form fieldset.phone div:hover a {
+section#detail a#delcontact, 
+section#detail form fieldset.name div:hover a {
   display:inline-block;
 }
 
-section#detail form fieldset.email div a:hover, 
-section#detail form fieldset.phone div a:hover {
+section#detail a#delcontact:hover, 
+section#detail form fieldset.name div a:hover {
   opacity: 1.0;
 }
 
 section#detail form fieldset.email div a.mov, 
 section#detail form fieldset.phone div a.mov {
   background-image: url(Components/move.svg);
-  left: -21px;
+  left: 0;
 }
 
-section#detail form fieldset.email div a.del, 
-section#detail form fieldset.phone div a.del {
+section#detail form fieldset.name div a.del {
   background-image: url(Components/delete.svg);
   right: 0;
 }
 
-section#detail a.less, 
+section#detail form fieldset.name a.less, 
+section#detail form fieldset.name a#delcontact {
+  position: relative;
+  display: inline-block;
+  top: 3px;
+}
+
+section#detail form fieldset.name a.less {
+  float: left;
+  left: -12px;
+}
+
+section#detail form fieldset.name a#delcontact {
+  float: right;
+  right: 0px;
+}
 section#list address a.more{
   float: right;
   width: auto;
@@ -286,9 +310,6 @@ section#list address a.more{
   color: #fff;
 }
 
-section#detail a.less {
-  padding: 12px;
-}
 
 section.console{
   float: left;
@@ -356,7 +377,7 @@ a.back div:hover {
 }
 
 section.console > button{
-  height: calc(100vh - 100px);
+  height: calc(100vh - 36px);
   width: 30px;
   background: transparent;
   border: none;
@@ -411,7 +432,7 @@ section.console form#extEdit fieldset div a:hover {
 
 section.console form#extEdit fieldset button {
   position: absolute;
-  right: 0;
+  right: -18px;
   z-index: 10;
   background-image: url(Components/check.svg);
   background-size: contain;
@@ -431,6 +452,7 @@ section.console ul#extList {
   display: none;
   position: absolute;
   top: 44px;
+  left: 20px;
   z-index: 10;
   list-style: none;
   background-color: #fff;

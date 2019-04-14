@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel='icon' href='CSS/Components/icons/Win/bien.ico' type='image/png'/>
+  <link rel='icon' href='CSS/Components/icons/win/icon.ico' type='image/x-icon'/>
   <title>!Bien Dialer</title>
   <link rel="stylesheet" type="text/css" href="CSS/style.css">
   <link rel="manifest" href="manifest.webmanifest">
@@ -29,10 +29,12 @@
     </address>
   </section>
   <section id="detail">
-    <a href="#" class="less">&lt;</a>
-    <form>
+    <form id="fContact">
       <fieldset class="name">
-        <div><input type="hidden" name="contact_uuid" value="0"><label><input type="radio" name="contact_name_prefix" value="Dhr.">Dhr.</label><label><input type="radio" name="contact_name_prefix" value="Mevr.">Mevr.</label></div>
+        <div><a role="button" class="less" title="Klik om terug te gaan naar het contactoverzicht.">&lt;</a>
+          <a id="delcontact" role="button" class="del" title="Klik om dit contact te verwijderen."></a>
+        </div>
+        <div><input id="contact_uuid" type="hidden" name="contact_uuid" value="0"><label><input type="radio" name="contact_name_prefix" value="Dhr.">Dhr.</label><label><input type="radio" name="contact_name_prefix" value="Mevr.">Mevr.</label></div>
         <div><input type="text" name="contact_name_given" placeholder="voornaam"></div>
         <div><input type="text" name="contact_name_middle" placeholder="initialen"></div>
         <div><input type="text" name="contact_name_suffix" placeholder="tussenvoegsel"></div>
