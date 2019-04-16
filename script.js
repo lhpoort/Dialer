@@ -13,7 +13,7 @@ var bSettings = null;
 /** AJAX SETTINGS **/
 $.ajaxSetup({
   cache: false,
-  timeout: timeout
+  timeout: 10000
 });
 
 request.onsuccess = function(event) {
@@ -67,7 +67,7 @@ function shoContacts(search) {
     $('section#list address').html('');
     for(var c in cContacts) {
       var oContact = cContacts[c];
-      if(oContact.contact_nickname === null && oContact.contact_name_family === null) continue;
+      if(oContact.contact_organization === null && oContact.contact_nickname === null && oContact.contact_name_family === null) continue;
       
       if(oContact.contact_phones.length > 0) {
         var aNumbers = [];
@@ -673,8 +673,11 @@ $(document).ready(function() {
     if(db) fillConsole();  
   }
   initConsole();  
-  $(window).on('resize', initConsole);
-  
+  var bDoInit = null;
+  $(window).on('resize', function() {
+    if(bDoInit > 1) window.clearTimeout(bDoInit);
+    bDoInit = window.setTimeout(initConsole, 700);
+  });
   bLoaded = true;
   
   $("section.console").on("click", "div.led", function() {
