@@ -14,9 +14,10 @@
   "author": "L.H. Poort Anan6 Services",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^1.8.3",
-    "electron-builder": "^20.6.2",
-    "electron-icon-maker": "0.0.4"
+    "electron": "^1.8.8",
+    "electron-builder": "^20.44.4",
+    "electron-icon-maker": "0.0.5",
+    "electron-rebuild": "^2.3.2"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,9 @@
   },
   "dependencies": {
     "asar": "^0.14.3",
-    "electron-window-state": "^4.1.1"
+    "electron-window-state": "^4.1.1",
+    "minimist": "^1.2.5",
+    "phantomjs-prebuilt": "^2.1.16",
+    "yargs-parser": "^20.2.3"
   }
 }

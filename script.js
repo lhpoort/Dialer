@@ -72,7 +72,8 @@ function shoContacts(search) {
       if(oContact.contact_phones.length > 0) {
         var aNumbers = [];
         oContact.contact_phones.forEach(function(oPhone){
-          aNumbers.push(oPhone.phone_number);
+          // add label to phone number 
+          aNumbers.push(oPhone.phone_label+": "+oPhone.phone_number);
         });
         var sNumber = aNumbers.join(",");
       } else {
@@ -390,7 +391,9 @@ $(document).ready(function() {
   });
 
   $("section").on("click", "a[data-phone-number] ul li", function() {
-    this.parentNode.parentNode.setAttribute('data-phone-number', this.textContent);
+    // strip label from number
+    var dialnr = str.Split(': ')[1];
+    this.parentNode.parentNode.setAttribute('dialnr', this.textContent);
   });
 
   /*** CONTACT EDITING ***/

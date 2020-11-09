@@ -72,7 +72,7 @@ const url = require('url');
   // code. You can also put them in separate files and require them here.
   app.on('browser-window-focus', () => {
     const sSelection = clipboard.readText('selection');
-    if(/^[0-9\+\(\)\-\s]+$/.test(sSelection)) {
+    if(/^\+?[0-9\+\(\)\-\s]+$/.test(sSelection)) {
       win.webContents.send('callMe', sSelection);
     }
   });
