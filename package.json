@@ -14,7 +14,7 @@
   "author": "L.H. Poort Anan6 Services",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^1.8.8",
+    "electron": "^7.2.4",
     "electron-builder": "^20.44.4",
     "electron-icon-maker": "0.0.5",
     "electron-rebuild": "^2.3.2"
