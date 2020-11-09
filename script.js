@@ -3,7 +3,7 @@ const maxExt = 100;
 const refreshRate = 5000;
 const timeout = 3000;
 const appVersion = window.require ? window.require('electron').remote.app.getVersion() : "XXX";
-var sServer = null; 
+var sServer = null;
 var sExtension = null;
 var db;
 var request = indexedDB.open(dbName, 2);
@@ -18,7 +18,7 @@ $.ajaxSetup({
 
 request.onsuccess = function(event) {
   db = event.target.result;
-  if(bLoaded === true) {
+  if (bLoaded === true) {
     fillConsole();
     doSettings();
   }
@@ -34,7 +34,7 @@ request.onupgradeneeded = function(event) {
   // Create an objectStore to hold information about our console buttons. We're
   // going to use "cell" as our key path because it's guaranteed to be unique 
   /*** CREATE CONSOLE BUTTONS ***/
-  if(!db.objectStoreNames.contains("buttons")) {
+  if (!db.objectStoreNames.contains("buttons")) {
     var objectStore = db.createObjectStore("buttons", { keyPath: "cell" });
 
     objectStore.transaction.oncomplete = function(event) {
@@ -43,105 +43,106 @@ request.onupgradeneeded = function(event) {
       buttonData.forEach(function(button) {
         buttonObjectStore.add(button);
       });
-      if(bLoaded === true) fillConsole();
+      if (bLoaded === true) fillConsole();
     };
   }
   /*** CREATE SETTINGS SETTINGS ***/
-  if(!db.objectStoreNames.contains("settings")) {
-    var settingsStore = db.createObjectStore("settings", { autoIncrement : true });
+  if (!db.objectStoreNames.contains("settings")) {
+    var settingsStore = db.createObjectStore("settings", { autoIncrement: true });
   }
 };
 
 /*** SHOW CONTACTS ***/
 var iSearch = null;
 var sSearch = null;
+
 function shoContacts(search) {
   sSearch = search !== undefined ? search : sSearch;
-  if(iSearch !== null) {
+  if (iSearch !== null) {
     window.clearTimeout(iSearch);
     iSearch = window.setTimeout(shoContacts, 300);
     return true;
   }
   iSearch = 0;
-  $.get(sServer + 'contacts.php', {"order_by": "TRIM(contact_organization), contact_name_given", "search_all": sSearch},function(cContacts){
+  $.get(sServer + 'contacts.php', { "order_by": "TRIM(contact_organization), contact_name_given", "search_all": sSearch }, function(cContacts) {
     $('section#list address').html('');
-    for(var c in cContacts) {
+    for (var c in cContacts) {
       var oContact = cContacts[c];
-      if(oContact.contact_organization === null && oContact.contact_nickname === null && oContact.contact_name_family === null) continue;
-      
-      if(oContact.contact_phones.length > 0) {
+      if (oContact.contact_organization === null && oContact.contact_nickname === null && oContact.contact_name_family === null) continue;
+
+      if (oContact.contact_phones.length > 0) {
         var aNumbers = [];
-        oContact.contact_phones.forEach(function(oPhone){
-          // add label to phone number 
-          aNumbers.push(oPhone.phone_label+": "+oPhone.phone_number);
+        oContact.contact_phones.forEach(function(oPhone) {
+          aNumbers.push(`${oPhone.phone_label}: ${oPhone.phone_number}`);
         });
         var sNumber = aNumbers.join(",");
       } else {
         sNumber = "0";
       }
-      var sFullname = (oContact.contact_organization !== null && oContact.contact_organization.replace(/\s/g, "").length > 0 ? oContact.contact_organization + ": " : "")
-      + (oContact.contact_name_given !== null ? oContact.contact_name_given + " " : "")
-      + (oContact.contact_name_suffix !== null ? oContact.contact_name_suffix + " " : "")
-      + (oContact.contact_name_family !== null ? oContact.contact_name_family + " " : "").slice(0, -1);
+      var sFullname = (oContact.contact_organization !== null && oContact.contact_organization.replace(/\s/g, "").length > 0 ? oContact.contact_organization + ": " : "") +
+        (oContact.contact_name_given !== null ? oContact.contact_name_given + " " : "") +
+        (oContact.contact_name_suffix !== null ? oContact.contact_name_suffix + " " : "") +
+        (oContact.contact_name_family !== null ? oContact.contact_name_family + " " : "").slice(0, -1);
       var sClassAnim = sFullname.length > 27 ? ' class="full"' : '';
-      $('section#list address').append('<a class="OK" href="#" data-phone-number="' + sNumber + '" alt="Click to call" title="' + sFullname + '"' +sClassAnim+ '>' 
-        + sFullname + "</a>"
-        + '<a class="more" rel="' + oContact.contact_uuid + '"href="#">&gt;</a>')
+      $('section#list address').append('<a class="OK" href="#" data-phone-number="' + sNumber + '" alt="Click to call" title="' + sFullname + '"' + sClassAnim + '>' +
+        sFullname + "</a>" +
+        '<a class="more" rel="' + oContact.contact_uuid + '"href="#">&gt;</a>')
     }
     iSearch = null;
   });
   return true;
 }
-  
+
 /*** SHOW CONSOLE STATUS ***/
 var bStatus = null;
+
 function getStatus() {
-  if(bStatus > 1) window.clearTimeout(bStatus);
+  if (bStatus > 1) window.clearTimeout(bStatus);
   bStatus = 1;
-  if(sServer === null) return false;
+  if (sServer === null) return false;
   var aExtensions = [];
-  $('section.console a[data-extension]').each(function(){
+  $('section.console a[data-extension]').each(function() {
     aExtensions.push(this.getAttribute('data-extension'));
   });
-  $.post(sServer + "get_call_activity.php", {"call": "ACTIVITY", "extensions": aExtensions}, function(oResult){
+  $.post(sServer + "get_call_activity.php", { "call": "ACTIVITY", "extensions": aExtensions }, function(oResult) {
     $('section.console a[data-extension] div.led').attr("class", "led");
     var cExtensions = oResult.extensions;
-    for(const e in cExtensions) {
-      var oExtension = cExtensions[e]; 
+    for (const e in cExtensions) {
+      var oExtension = cExtensions[e];
       /*** CHECK IF CONNECTED ***/
-      if(oExtension.connected !== true) {
+      if (oExtension.connected !== true) {
         continue;
       }
 
       /*** CHECK IF DND ***/
-      if(oExtension.do_not_disturb === "true") {
+      if (oExtension.do_not_disturb === "true") {
         $('section.console a[data-extension="' + oExtension.extension + '"] div.led').addClass('disturb');
-        continue;        
+        continue;
       }
 
       /*** CHECK CALL STATE ***/
-      switch(oExtension.callstate) {
-        case "EARLY": 
-        case "ACTIVE": 
-        case "RINGING": 
-        case "RING_WAIT": 
+      switch (oExtension.callstate) {
+        case "EARLY":
+        case "ACTIVE":
+        case "RINGING":
+        case "RING_WAIT":
           $('section.console a[data-extension="' + oExtension.extension + '"] div.led').addClass('busy');
           break;
-        default: 
+        default:
           $('section.console a[data-extension="' + oExtension.extension + '"] div.led').addClass('available');
-          break;        
+          break;
       }
     }
     var cCallFlows = oResult.callFlows;
-    for(const cf in cCallFlows) {
+    for (const cf in cCallFlows) {
       const oCallFlow = cCallFlows[cf];
-      if(oCallFlow.call_flow_status === "true") {
+      if (oCallFlow.call_flow_status === "true") {
         $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('available');
       } else {
-        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('busy');        
+        $('section.console a[data-extension="' + oCallFlow.call_flow_extension + '"] div.led').addClass('busy');
       }
-    } 
-  }).always(function(){
+    }
+  }).always(function() {
     bStatus = window.setTimeout(getStatus, refreshRate);
   });
 }
@@ -150,7 +151,7 @@ function getStatus() {
 function shoExtension(oExtension) {
   $('input[name="pbx_do_not_disturb"]').prop("checked", oExtension.do_not_disturb === "true");
   $('input[name="pbx_voicemail_enabled"]').prop("checked", oExtension.voicemail.voicemail_enabled === "true");
-  if(oExtension.forward_all_enabled === "true") {
+  if (oExtension.forward_all_enabled === "true") {
     $('input[name="pbx_forward_all_enabled"]').prop("checked", true);
     $('input[name="pbx_forward_all_destination"]').prop("disabled", false);
   } else {
@@ -163,12 +164,13 @@ function shoExtension(oExtension) {
   $('input[name="pbx_directory_mid_fix"]').val(oExtension.directory_mid_fix);
   $('input[name="pbx_directory_last_name"]').val(oExtension.directory_last_name);
 }
-function login(oSettings, fCallback){
-    var oButton = $("button#connect");
-    oButton.text("...");
-    $.get(oSettings.server + "extensions.php", {"extension": oSettings.extension, "password": oSettings.password}, function(oResult){
+
+function login(oSettings, fCallback) {
+  var oButton = $("button#connect");
+  oButton.text("...");
+  $.get(oSettings.server + "extensions.php", { "extension": oSettings.extension, "password": oSettings.password }, function(oResult) {
     /*** UPDATE LOGIN DATA ***/
-    if(oResult.code === 0) {
+    if (oResult.code === 0) {
       var oExtension = oResult.extension;
       shoExtension(oExtension);
       oSettings.password = oExtension.password;
@@ -179,18 +181,18 @@ function login(oSettings, fCallback){
       sExtension = oSettings.extension;
       /*** SHOW EXTENSION DETAILS */
       console.log(oResult.message);
-      if(fCallback) fCallback();
+      if (fCallback) fCallback();
       bSettings = true;
-    } else if(oResult.message) {
-      if(!$("a#doset").hasClass("on")) setSettings();
+    } else if (oResult.message) {
+      if (!$("a#doset").hasClass("on")) setSettings();
       oButton.text("verbinden");
       alert(oResult.message);
     } else {
-      if(!$("a#doset").hasClass("on")) setSettings();
+      if (!$("a#doset").hasClass("on")) setSettings();
       oButton.text("verbinden");
       alert("Er is geen verbinding mogelijk met de server. Controleer het adres");
     }
-  }).fail(function(){
+  }).fail(function() {
     oButton.text("verbinden");
     alert("Er is geen verbinding mogelijk met de server. Controleer het adres");
   });
@@ -203,12 +205,12 @@ function doSettings() {
     var cursor = event.target.result;
     if (cursor) {
       sServer = cursor.value.server
-      oSettings = {"server": sServer, "extension": cursor.value.extension, "password": cursor.value.password}
+      oSettings = { "server": sServer, "extension": cursor.value.extension, "password": cursor.value.password }
       cursor.continue();
-    } else if(sServer === null) {
+    } else if (sServer === null) {
       setSettings();
-    } else if(bSettings === null) {
-      login(oSettings, function(){
+    } else if (bSettings === null) {
+      login(oSettings, function() {
         shoContacts();
       });
     }
@@ -216,8 +218,8 @@ function doSettings() {
 }
 
 /*** OPEN SETTINGS ***/
-function setSettings(){
-  if($("a#doset").hasClass("on")) {
+function setSettings() {
+  if ($("a#doset").hasClass("on")) {
     $("h1").text("Contacten");
     $("a#doset").removeClass("on");
     $("section#list").show();
@@ -226,10 +228,10 @@ function setSettings(){
     db.transaction("settings").objectStore("settings").openCursor().onsuccess = function(event) {
       var cursor = event.target.result;
       if (cursor) {
-        $('input[name="pbx_address"]').val(cursor.value.server), 
-        $('input[name="pbx_extension"]').val(cursor.value.extension), 
-        $('input[name="pbx_password"]').val(cursor.value.password), 
-        cursor.continue();
+        $('input[name="pbx_address"]').val(cursor.value.server),
+          $('input[name="pbx_extension"]').val(cursor.value.extension),
+          $('input[name="pbx_password"]').val(cursor.value.password),
+          cursor.continue();
       } else {
         $("h1").text("Instellingen (" + appVersion + ")");
         $("div#contact").show();
@@ -243,20 +245,20 @@ function setSettings(){
 }
 
 /*** LOAD CONSOLE ***/
-function fillConsole() { 
+function fillConsole() {
   /*** GET EXTENSION LABELS ***/
   db.transaction("buttons").objectStore("buttons").openCursor().onsuccess = function(event) {
     var cursor = event.target.result;
     if (cursor) {
       $("#" + cursor.key + " span").html("");
       $("#" + cursor.key).attr("data-extension", cursor.value.extension)
-      .attr("data-label", cursor.value.label)
-      .attr("data-type", cursor.value.command ? cursor.value.command : "ext")
-      .append("<span>" + cursor.value.label.replace(/[\r\n]+/g, "<br>") + "</span>");
+        .attr("data-label", cursor.value.label)
+        .attr("data-type", cursor.value.command ? cursor.value.command : "ext")
+        .append("<span>" + cursor.value.label.replace(/[\r\n]+/g, "<br>") + "</span>");
       cursor.continue();
-    } else if(sServer !== null) {
+    } else if (sServer !== null) {
       getStatus();
-    } else if(bSettings === null) {
+    } else if (bSettings === null) {
       doSettings()
     }
   }
@@ -270,11 +272,12 @@ $(document).ready(function() {
   /*** GENERAL DRAG AND DROP FUNCTIONS ***/
   var sID = null;
   var sContext = null;
+
   function doDragStart(ev) {
     $(ev.currentTarget).addClass('drag');
     sID = ev.originalEvent.target.id;
     var oField = ev.originalEvent.target;
-    while(oField.tagName != "FIELDSET")  oField = oField.parentNode;
+    while (oField.tagName != "FIELDSET") oField = oField.parentNode;
     sContext = oField.className;
     ev.effectAllowed = "move";
   }
@@ -288,42 +291,42 @@ $(document).ready(function() {
     try {
       ev.preventDefault();
       var oDiv = ev.target
-      if(oDiv.tagName != "DIV")  oDiv = oDiv.parentNode;
+      if (oDiv.tagName != "DIV") oDiv = oDiv.parentNode;
       var oField = oDiv.parentNode;
-      if(oField.className != sContext) return false;
+      if (oField.className != sContext) return false;
       ev.currentTarget.insertBefore(document.getElementById(sID), oDiv);
-      sID = null;  
-      if(fCallback) fCallback();
-    } catch(oError){
+      sID = null;
+      if (fCallback) fCallback();
+    } catch (oError) {
       console.log(ev.target.tagName)
     }
     $(ev.currentTarget).removeClass('over');
   }
 
-  function doDragEnd(ev) { 
+  function doDragEnd(ev) {
     $('div.drag').removeClass('drag').prop("draggable", false);
     $('fieldset.over').removeClass('over');
     sContext = null;
   }
-  
+
   /*** SEARCH CONTACTS ***/
   $("#search").on("keyup", function() {
     $('a#add').removeClass('call').attr('title', 'Contact toevoegen');
-    if(/^[0-9\(\)\+\s\-]+$/.test(this.value)) {
+    if (/^[0-9\(\)\+\s\-]+$/.test(this.value)) {
       $('a#add').addClass('call').attr('title', 'Telefoonnummer bellen');
-    } else if(this.value.length > 2) {
+    } else if (this.value.length > 2) {
       shoContacts(this.value);
-    } else if(this.value.length == 0) {
+    } else if (this.value.length == 0) {
       shoContacts("");
     }
   });
 
   /*** NUMMER BELLEN ***/
   $("section").on("click", "a#add.call", function() {
-    var sNumber =  $('input#search').val();
+    var sNumber = $('input#search').val();
     calling(sNumber);
   });
-  
+
   /*** ADD CONTACT ***/
   $("section").on("click", "a#add:not(.call)", function() {
     $("input[name=contact_uuid]").val("");
@@ -333,7 +336,7 @@ $(document).ready(function() {
     $("input[name=contact_name_suffix]").val("");
     $("input[name=contact_name_family]").val("");
     $("input[name=contact_organization]").val("");
-    
+
     $("fieldset.phone div:not(.add)").remove();
     $("fieldset.phone div.add input").val("");
 
@@ -347,11 +350,11 @@ $(document).ready(function() {
     /*** RENUMBER PHONE NUMBER **/
     sNumber = sNumber.replace(/[\s\)\-]+/g, '')
       .replace(/\+?\(/, "00");
-    if(sNumber != "0") {
-      $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber, "destination_name": (sName ? sName: sNumber)}, function(oResult){
-        if(oResult.code != 0) {
+    if (sNumber != "0") {
+      $.get(sServer + "fs.php", { "user": sExtension, "destination": sNumber, "destination_name": (sName ? sName : sNumber) }, function(oResult) {
+        if (oResult.code != 0) {
           var sMessage = "Fout onbekend."
-          switch(oResult.code) {
+          switch (oResult.code) {
             case 1050:
               sMessage = "Uw telefoon is niet verbonden.";
               break;
@@ -360,7 +363,7 @@ $(document).ready(function() {
               break;
           }
           alert(sMessage);
-        } 
+        }
       });
     } else {
       alert("Er is geen telefoonnummer bekend voor dit contact.");
@@ -369,36 +372,36 @@ $(document).ready(function() {
   }
   $("section").on("mouseover", "a[data-phone-number]", function() {
     var aNumbers = this.getAttribute('data-phone-number').split(/\,/);
-    if(aNumbers.length > 1) {
-      if(this.getElementsByTagName('ul').length > 0) return true;
+    if (aNumbers.length > 1) {
+      if (this.getElementsByTagName('ul').length > 0) return true;
       var oUl = document.createElement('ul');
-      aNumbers.forEach(function(sNumber){
+      aNumbers.forEach(function(sNumber) {
         var oLi = document.createElement('li');
         oLi.innerHTML = sNumber;
         oUl.appendChild(oLi);
       });
       this.appendChild(oUl);
-      this.setAttribute("data-phone-number",aNumbers[0]);
+      this.setAttribute("data-phone-number", aNumbers[0].split(/[\:\s]+/)[1]);
       this.classList.remove("full");
     }
   });
 
   $("section").on("click", "a[data-phone-number]", function() {
-    var sNumber =  this.getAttribute("data-phone-number");
-    var aTitle =  this.getAttribute("title").split(/\:\s*/);
+    var sNumber = this.getAttribute("data-phone-number");
+    var aTitle = this.getAttribute("title").split(/\:\s*/);
     var sTitle = aTitle.length > 1 ? aTitle[1] : aTitle[0];
     calling(sNumber, sTitle);
   });
 
   $("section").on("click", "a[data-phone-number] ul li", function() {
     // strip label from number
-    var dialnr = str.Split(': ')[1];
-    this.parentNode.parentNode.setAttribute('dialnr', this.textContent);
+    var sNumber = this.textContent.split(/[\:\s]+/)[1];
+    this.parentNode.parentNode.setAttribute('data-phone-number', sNumber);
   });
 
   /*** CONTACT EDITING ***/
   $("section").on("click", "a.more", function() {
-    $.get(sServer + "contacts.php", {"contact_uuid": this.getAttribute("rel")}, function(oResult) {
+    $.get(sServer + "contacts.php", { "contact_uuid": this.getAttribute("rel") }, function(oResult) {
       $("input[name=contact_uuid]").val(oResult.contact_uuid);
       $("input[name=contact_name_prefix]").val([oResult.contact_name_prefix]);
       $("input[name=contact_name_given]").val(oResult.contact_name_given);
@@ -411,14 +414,14 @@ $(document).ready(function() {
       $("fieldset.phone div:not(.add)").remove();
       $("fieldset.phone div.add input").val("");
       var iLast = 0;
-      for(var p in oResult.contact_phones) {
+      for (var p in oResult.contact_phones) {
         iLast += 100;
         var oPhone = oResult.contact_phones[p];
-        $("fieldset.phone div.add").before('<div id="' + oPhone.contact_phone_uuid + '" draggable="false"><a role="button" class="mov"></a>'
-          + '<input type="hidden" name="contact_phones[' + oPhone.contact_phone_uuid +  '][sequence]" value="' + iLast + '">'
-          + '<input type="text" name="contact_phones[' + oPhone.contact_phone_uuid +  '][label]" placeholder="' + oPhone.phone_label + '" class="label" value="' + oPhone.phone_label + '">'
-          + '<input type="text" name="contact_phones[' + oPhone.contact_phone_uuid +  '][number]" placeholder="telefoonnummer" value="' + oPhone.phone_number + '">'
-          + '<a role="button" class="del"></a></div>');
+        $("fieldset.phone div.add").before('<div id="' + oPhone.contact_phone_uuid + '" draggable="false"><a role="button" class="mov"></a>' +
+          '<input type="hidden" name="contact_phones[' + oPhone.contact_phone_uuid + '][sequence]" value="' + iLast + '">' +
+          '<input type="text" name="contact_phones[' + oPhone.contact_phone_uuid + '][label]" placeholder="' + oPhone.phone_label + '" class="label" value="' + oPhone.phone_label + '">' +
+          '<input type="text" name="contact_phones[' + oPhone.contact_phone_uuid + '][number]" placeholder="telefoonnummer" value="' + oPhone.phone_number + '">' +
+          '<a role="button" class="del"></a></div>');
       }
       $('fieldset.phone div.add input[name$="[sequence]"]').val(iLast + 100);
 
@@ -426,14 +429,14 @@ $(document).ready(function() {
       $("fieldset.email div:not(.add)").remove();
       $("fieldset.email div.add input").val("");
       var iLast = 0;
-      for(var e in oResult.contact_emails) {
+      for (var e in oResult.contact_emails) {
         iLast += 100;
         var oEmail = oResult.contact_emails[e];
-        $("fieldset.email div.add").before('<div id="' + oEmail.contact_email_uuid + '" draggable="false"><a role="button" class="mov"></a>'
-          + '<input type="hidden" name="contact_emails[' + oEmail.contact_email_uuid +  '][sequence]" value="' + iLast + '">'
-          + '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid +  '][label]" placeholder="' + oEmail.email_label + '" class="label" value="' + oEmail.email_label + '">'
-          + '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid +  '][email]" placeholder="e-mailadres" value="' + oEmail.email_address + '">'
-          + '<a role="button" class="del"></a></div>');
+        $("fieldset.email div.add").before('<div id="' + oEmail.contact_email_uuid + '" draggable="false"><a role="button" class="mov"></a>' +
+          '<input type="hidden" name="contact_emails[' + oEmail.contact_email_uuid + '][sequence]" value="' + iLast + '">' +
+          '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid + '][label]" placeholder="' + oEmail.email_label + '" class="label" value="' + oEmail.email_label + '">' +
+          '<input type="text" name="contact_emails[' + oEmail.contact_email_uuid + '][email]" placeholder="e-mailadres" value="' + oEmail.email_address + '">' +
+          '<a role="button" class="del"></a></div>');
       }
       $('fieldset.email div.add input[name$="[sequence]"]').val(iLast + 100);
 
@@ -441,38 +444,39 @@ $(document).ready(function() {
       $("section#detail").show();
     });
   });
+
   function updContact() {
     var oContact = {};
     $("section#detail form fieldset.name div:not(.add) input").each(function() {
-      switch(this.type.toLowerCase()) {
+      switch (this.type.toLowerCase()) {
         case "checkbox":
         case "radio":
-          if(this.checked === true)  oContact[this.name] = this.value;
+          if (this.checked === true) oContact[this.name] = this.value;
           break;
         default:
-         oContact[this.name] = $(this).val();
-         break;
+          oContact[this.name] = $(this).val();
+          break;
       }
     });
     /*** AT LEAST ONE NAME  */
-    if(oContact.contact_uuid == "" 
-      && oContact.contact_organization == "" 
-      && oContact.contact_name_family == ""
-      && oContact.contact_name_given == "") return true;
+    if (oContact.contact_uuid == "" &&
+      oContact.contact_organization == "" &&
+      oContact.contact_name_family == "" &&
+      oContact.contact_name_given == "") return true;
     $.post(sServer + "contacts.php", oContact, function(oResult) {
       $("input[name=contact_uuid]").val(oResult.contact_uuid);
-      for(var p in oResult.contact_phones){
+      for (var p in oResult.contact_phones) {
         var oPhone = oResult.contact_phones[p];
-        if($('input[name="contact_phones[' + oPhone.contact_phone_uuid + '][label]"]').length > 0) continue;
+        if ($('input[name="contact_phones[' + oPhone.contact_phone_uuid + '][label]"]').length > 0) continue;
         $('div[id="__NEW__"] input[name="contact_phones[0][sequence]"]').attr("name", "contact_phones[" + oPhone.contact_phone_uuid + "][sequence]");
         $('div[id="__NEW__"] input[name="contact_phones[0][label]"]').attr("name", "contact_phones[" + oPhone.contact_phone_uuid + "][label]");
         $('div[id="__NEW__"] input[name="contact_phones[0][number]"]').attr("name", "contact_phones[" + oPhone.contact_phone_uuid + "][number]");
         $('div[id="__NEW__"]').attr('id', oPhone.contact_phone_uuid);
         break;
       }
-      for(var e in oResult.contact_emails){
+      for (var e in oResult.contact_emails) {
         var oEmail = oResult.contact_emails[e];
-        if($('input[name="contact_emails[' + oEmail.contact_email_uuid + '][label]"]').length > 0) continue;
+        if ($('input[name="contact_emails[' + oEmail.contact_email_uuid + '][label]"]').length > 0) continue;
         $('div[id="__NEW__"] input[name="contact_emails[0][sequence]"]').attr("name", "contact_emails[" + oEmail.contact_email_uuid + "][sequence]");
         $('div[id="__NEW__"] input[name="contact_emails[0][label]"]').attr("name", "contact_emails[" + oEmail.contact_email_uuid + "][label]");
         $('div[id="__NEW__"] input[name="contact_emails[0][email]"]').attr("name", "contact_emails[" + oEmail.contact_email_uuid + "][email]");
@@ -485,37 +489,37 @@ $(document).ready(function() {
 
   /*** DELETE CONTACT ***/
   $("section#detail").on("click", "a#delcontact", function() {
-    if(confirm('Wilt u dit contact verwijderen?')) {
+    if (confirm('Wilt u dit contact verwijderen?')) {
       var $Form = $('form#fContact');
       $.ajax({
         method: "DELETE",
-        url: sServer + "contacts.php", 
-        data: {"contact_uuid": $('input#contact_uuid').val()}, 
+        url: sServer + "contacts.php",
+        data: { "contact_uuid": $('input#contact_uuid').val() },
         success: function(oResult) {
           $Form.find(":input").val('');
         }
-      });  
+      });
     }
   });
 
   /*** EDIT PHONES ***/
   /*** INIT DRAG AND DROP ***/
-  $('section#detail').on('drop', 'fieldset.phone', function(ev){
-      doDrop(ev, function(){
-        var iLast = 0;
-        $('fieldset.phone div:not(.add) input[name$="[sequence]"]').each(function(){
-          iLast += 100
-          $(this).val(iLast);
-        });
-        updContact();
-      })
-    }).on('dragover', 'fieldset.phone', doDragOver);
+  $('section#detail').on('drop', 'fieldset.phone', function(ev) {
+    doDrop(ev, function() {
+      var iLast = 0;
+      $('fieldset.phone div:not(.add) input[name$="[sequence]"]').each(function() {
+        iLast += 100
+        $(this).val(iLast);
+      });
+      updContact();
+    })
+  }).on('dragover', 'fieldset.phone', doDragOver);
   $('section#detail').on('drag', 'fieldset.phone div:not(.add)', doDragStart).on('dragend', 'fieldset.phone div:not(.add)', doDragEnd);
-  $('section#detail').on('mousedown', 'fieldset.phone div a.mov', function(){
-    $(this).parent().prop('draggable',true);
+  $('section#detail').on('mousedown', 'fieldset.phone div a.mov', function() {
+    $(this).parent().prop('draggable', true);
   });
-  $('section#detail').on('mousedown', 'fieldset.email div a.mov', function(){
-    $(this).parent().prop('draggable',true);
+  $('section#detail').on('mousedown', 'fieldset.email div a.mov', function() {
+    $(this).parent().prop('draggable', true);
   });
   /** ADD PHONE ***/
   $('section#detail').on('change', 'form fieldset.phone div.add input.label', function() {
@@ -527,17 +531,17 @@ $(document).ready(function() {
       .prepend('<a class="mov"></a>')
       .append('<a class="del"></a>')
       .find('input:eq(2)').focus();
-     this.value="";
-     var oSeq = $('section#detail form fieldset.phone div.add input[name$="[sequence]"]');
-     oSeq.val(parseInt(oSeq.val()) + 100);
+    this.value = "";
+    var oSeq = $('section#detail form fieldset.phone div.add input[name$="[sequence]"]');
+    oSeq.val(parseInt(oSeq.val()) + 100);
   });
   /*** DELETE PHONE NUMBER ***/
   $("section#detail").on("click", "form fieldset.phone a.del", function() {
     var oDiv = $(this).parent();
     $.ajax({
       method: "DELETE",
-      url: sServer + "contacts.php", 
-      data: {"contact_phone_uuid": oDiv.attr('id')}, 
+      url: sServer + "contacts.php",
+      data: { "contact_phone_uuid": oDiv.attr('id') },
       success: function(oResult) {
         oDiv.remove();
       }
@@ -546,10 +550,10 @@ $(document).ready(function() {
 
   /*** EDIT EMAIL ***/
   /*** INIT DRAG AND DROP ***/
-  $('section#detail').on('drop', 'fieldset.email', function(ev){
-    doDrop(ev, function(){
+  $('section#detail').on('drop', 'fieldset.email', function(ev) {
+    doDrop(ev, function() {
       var iLast = 0;
-      $('fieldset.email div:not(.add) input[name$="[sequence]"]').each(function(){
+      $('fieldset.email div:not(.add) input[name$="[sequence]"]').each(function() {
         iLast += 100
         $(this).val(iLast);
       });
@@ -557,8 +561,8 @@ $(document).ready(function() {
     })
   }).on('dragover', 'fieldset.email', doDragOver);
   $('section#detail').on('drag', 'fieldset.email div:not(.add)', doDragStart).on('dragend', 'fieldset.email div:not(.add)', doDragEnd);
-  $('section#detail').on('click', 'fieldset.email div a.mov', function(){
-    $(this).parent().prop('draggable',true);
+  $('section#detail').on('click', 'fieldset.email div a.mov', function() {
+    $(this).parent().prop('draggable', true);
   });
   /** ADD EMAIL ***/
   $('section#detail').on('change', 'form fieldset.email div.add input.label', function() {
@@ -570,7 +574,7 @@ $(document).ready(function() {
       .prepend('<a class="mov"></a>')
       .append('<a class="del"></a>')
       .find('input:eq(2)').focus();
-    this.value="";
+    this.value = "";
     var oSeq = $('section#detail form fieldset.email div.add input[name$="[sequence]"]');
     oSeq.val(parseInt(oSeq.val()) + 100);
   });
@@ -579,8 +583,8 @@ $(document).ready(function() {
     var oDiv = $(this).parent();
     $.ajax({
       method: "DELETE",
-      url: sServer + "contacts.php", 
-      data: {"contact_email_uuid": oDiv.attr('id')}, 
+      url: sServer + "contacts.php",
+      data: { "contact_email_uuid": oDiv.attr('id') },
       success: function(oResult) {
         oDiv.remove();
       }
@@ -593,20 +597,20 @@ $(document).ready(function() {
     $("section#list").show();
     shoContacts();
   });
-  
+
   /*** SHOW/HIDE SETTINGS ***/
   $("button#docon").on("click", function(e) {
-    if($(window).width() > 830 && !e.ctrlKey) {
+    if ($(window).width() > 830 && !e.ctrlKey) {
       $(this).removeClass("open");
       window.resizeBy(-282, 0);
-    } else if($(this).hasClass("open") && $(window).width() > 560 && !e.ctrlKey) {
+    } else if ($(this).hasClass("open") && $(window).width() > 560 && !e.ctrlKey) {
       $(this).html('&lt;')
       window.resizeBy(282, 0);
-    } else if($(this).hasClass("open") && !e.ctrlKey) {
+    } else if ($(this).hasClass("open") && !e.ctrlKey) {
       window.resizeBy(282, 0);
-    } else if(!$(this).hasClass("open") && e.ctrlKey && $(window).width() < 830) {
+    } else if (!$(this).hasClass("open") && e.ctrlKey && $(window).width() < 830) {
       window.resizeBy(282, 0);
-    } else if($(window).width() > 560) {
+    } else if ($(window).width() > 560) {
       window.resizeBy(-282, 0);
       $(this).html('&gt;')
       $(this).addClass("open");
@@ -618,22 +622,22 @@ $(document).ready(function() {
   $("a#doset").on("click", function() {
     setSettings();
   });
-  
-  $("button#connect").on("click", function(){
+
+  $("button#connect").on("click", function() {
     var oSettings = {
-      server: $('input[name="pbx_address"]').val(), 
-      extension: $('input[name="pbx_extension"]').val(), 
-      password: $('input[name="pbx_password"]').val(), 
+      server: $('input[name="pbx_address"]').val(),
+      extension: $('input[name="pbx_extension"]').val(),
+      password: $('input[name="pbx_password"]').val(),
     }
-    login(oSettings, function(){
+    login(oSettings, function() {
       shoContacts();
-      if(bStatus === null) getStatus();
+      if (bStatus === null) getStatus();
     });
   });
   /*** EXTENSION EDITING ***/
-  $("section#settings fieldset.ext_status input, section#settings fieldset.ext_coor input").on("change", function(){
-    if(this.name == "pbx_forward_all_enabled") {
-      if($(this).prop("checked")) {
+  $("section#settings fieldset.ext_status input, section#settings fieldset.ext_coor input").on("change", function() {
+    if (this.name == "pbx_forward_all_enabled") {
+      if ($(this).prop("checked")) {
         $('section#settings fieldset.ext_status input[name="pbx_forward_all_destination"]').prop("disabled", false).focus();
       } else {
         $('section#settings fieldset.ext_status input[name="pbx_forward_all_destination"]').prop("disabled", true);
@@ -650,11 +654,11 @@ $(document).ready(function() {
       "directory_mid_fix": $('input[name="pbx_directory_mid_fix"]').val(),
       "directory_last_name": $('input[name="pbx_directory_last_name"]').val()
     };
-    $.post(sServer + 'extensions.php', oExtension, function(oResult){
+    $.post(sServer + 'extensions.php', oExtension, function(oResult) {
       try {
-        if(oResult.code != 0) throw new Error(oResult.message);
+        if (oResult.code != 0) throw new Error(oResult.message);
         console.log(oResult.message);
-      } catch(e) {
+      } catch (e) {
         alert("Er is een fout opgetreden: " + e.message + "\r\n" + oResult);
       }
     });
@@ -664,25 +668,25 @@ $(document).ready(function() {
     $("section.console address").html("");
     var iHeight = $("section.console").height();
     var iMax = 1;
-    while($("section.console address").height() < iHeight) {
+    while ($("section.console address").height() < iHeight) {
       $("section.console address").each(function(index) {
         var sCol = "ABCDEFG".substr(index, 1);
         var iRow = this.childNodes.length + 1;
         var sCell = sCol + iRow;
         $(this).append('<a id="' + sCell + '" href="#" class="back"><div class="led" title="Wijzigen"></div></a>');
       });
-      if(iMax++ > maxExt) break;
+      if (iMax++ > maxExt) break;
     }
-    if(db) fillConsole();  
+    if (db) fillConsole();
   }
-  initConsole();  
+  initConsole();
   var bDoInit = null;
   $(window).on('resize', function() {
-    if(bDoInit > 1) window.clearTimeout(bDoInit);
+    if (bDoInit > 1) window.clearTimeout(bDoInit);
     bDoInit = window.setTimeout(initConsole, 700);
   });
   bLoaded = true;
-  
+
   $("section.console").on("click", "div.led", function() {
     $('form#extEdit input[name="extension"]').val($(this).parent().attr("data-extension"));
     $('form#extEdit textarea[name="label"]').val($(this).parent().attr("data-label"));
@@ -695,49 +699,50 @@ $(document).ready(function() {
   /*** EXTENSION LOOKUP ***/
   var iGetExt = null;
   $("section.console").on("keyup", 'input[name="extension"]', function() {
-    if(iGetExt !== null) {
+    if (iGetExt !== null) {
       window.clearTimeout(iGetExt);
       iGetExt = null;
     }
-    if(this.value.length > 2) {
-      var sSearch =  this.value;
+    if (this.value.length > 2) {
+      var sSearch = this.value;
       iGetExt = window.setTimeout(function() {
         $('ul#extList').html("").show();
-        $.get(sServer + 'extensions.php', {search: sSearch}, function(oResult){
+        $.get(sServer + 'extensions.php', { search: sSearch }, function(oResult) {
           var cExtensions = oResult.extensions;
           var cCallFlows = oResult.callFlows;
-          if(cExtensions.length > 0) {
-            for(const e in cExtensions) {
+          if (cExtensions.length > 0) {
+            for (const e in cExtensions) {
               var oExtension = cExtensions[e];
-              oExtension.fullname = oExtension.directory_last_name 
-              ? (oExtension.directory_first_name ? oExtension.directory_first_name : "")
-                + (oExtension.directory_mid_fix ? oExtension.directory_mid_fix : " ")
-                + oExtension.directory_last_name
-              : (oExtension.directory_first_name 
-                ? oExtension.directory_first_name 
-                : oExtension.description 
-                  ? oExtension.description
-                  : "Onbekend");
-              if(oExtension.fullname) {
+              oExtension.fullname = oExtension.directory_last_name ?
+                (oExtension.directory_first_name ? oExtension.directory_first_name : "") +
+                (oExtension.directory_mid_fix ? oExtension.directory_mid_fix : " ") +
+                oExtension.directory_last_name :
+                (oExtension.directory_first_name ?
+                  oExtension.directory_first_name :
+                  oExtension.description ?
+                  oExtension.description :
+                  "Onbekend");
+              if (oExtension.fullname) {
                 oExtension.fullname = oExtension.fullname.replace(/(^\s+|\s+$)/, "");
               } else {
                 oExtension.fullname = "Onbekend";
               }
-              $('ul#extList').append('<li data-extension="' +oExtension.extension+ '" data-fullname="' +oExtension.fullname+ '" data-type="ext">'  
-                + oExtension.extension + ": " + oExtension.fullname
-                + "</li>");
+              $('ul#extList').append('<li data-extension="' + oExtension.extension + '" data-fullname="' + oExtension.fullname + '" data-type="ext">' +
+                oExtension.extension + ": " + oExtension.fullname +
+                "</li>");
             }
-          } else if(cCallFlows.length > 0) {
-            for(const cf in cCallFlows) {
+          } else if (cCallFlows.length > 0) {
+            for (const cf in cCallFlows) {
               var oCallFlow = cCallFlows[cf];
-              $('ul#extList').append('<li data-extension="' + oCallFlow.call_flow_extension 
-                + '" data-fullname="' + oCallFlow.call_flow_name 
-                + '" data-type="cf">'  
-                + oCallFlow.call_flow_extension + ": " + oCallFlow.call_flow_name
-                + "</li>");
+              $('ul#extList').append('<li data-extension="' + oCallFlow.call_flow_extension +
+                '" data-fullname="' + oCallFlow.call_flow_name +
+                '" data-type="cf">' +
+                oCallFlow.call_flow_extension + ": " + oCallFlow.call_flow_name +
+                "</li>");
             }
           }
-        })}, 300);
+        })
+      }, 300);
     } else {
       $('textarea[name=label]').val("");
       $('ul#extList').html("").hide();
@@ -757,18 +762,19 @@ $(document).ready(function() {
     $('form#extEdit textarea[name="label"]').val("");
   });
 
-  $("section.console form#extEdit button").on("click", function() { 
-    if($('ul#extList li').length == 1) {
+  $("section.console form#extEdit button").on("click", function() {
+    if ($('ul#extList li').length == 1) {
       $('form#extEdit input[name="extension"]').val($('ul#extList li:first').attr('data-extension'));
-      $('form#extEdit textarea[name="label"]').val($('ul#extList li:first').attr('data-fullname') 
-        + "\r\n" + $('ul#extList li:first').attr('data-extension'));
+      $('form#extEdit textarea[name="label"]').val($('ul#extList li:first').attr('data-fullname') +
+        "\r\n" + $('ul#extList li:first').attr('data-extension'));
     }
     $('ul#extList').html("").hide();
     var oButton = {
       cell: $(this).parents("a").attr("id"),
       extension: $('form#extEdit input[name="extension"]').val(),
       label: $('form#extEdit textarea[name="label"]').val(),
-      command: $('form#extEdit input[name="extension"]').attr("data-type")};
+      command: $('form#extEdit input[name="extension"]').attr("data-type")
+    };
     $(this).parents("a").attr("data-extension", oButton.extension)
       .attr("data-label", oButton.label)
       .attr("data-type", oButton.command)
@@ -776,11 +782,11 @@ $(document).ready(function() {
       .prepend('<div class="led" title="Wijzigen"></div>' + $('form#extEdit textarea[name="label"]').val().replace(/[\r\n]+/g, "<br>"));
     $("section.console").append($("form#extEdit"));
     $("form#extEdit :input").val("");
-    
+
     /*** ADD TO DB ***/
     var transaction = db.transaction(["buttons"], "readwrite");
     var objectStore = transaction.objectStore("buttons");
-    if(oButton.label.length > 0) {
+    if (oButton.label.length > 0) {
       var request = objectStore.put(oButton);
     } else {
       var request = objectStore.delete(oButton.cell);
@@ -788,35 +794,35 @@ $(document).ready(function() {
     request.onsuccess = function(event) {
       $('form#extEdit input[name="extension"]').val("");
       $('form#extEdit textarea[name="label"]').val("");
-      if(bStatus === null) getStatus();
+      if (bStatus === null) getStatus();
     };
     return false;
   });
 
-  $("section.console").on("click", "a[data-extension]:not(.edit)", function(){
+  $("section.console").on("click", "a[data-extension]:not(.edit)", function() {
     try {
-      var sNumber =  this.getAttribute("data-extension");
+      var sNumber = this.getAttribute("data-extension");
       var aName = this.getAttribute("data-label").split(/[\r\n]+/);
       var sContactName = aName[0];
-      if(sNumber == "0") throw new Error("Er is geen telefoonnummer bekend voor dit contact.");
+      if (sNumber == "0") throw new Error("Er is geen telefoonnummer bekend voor dit contact.");
       /*** CALL FLOW */
-      if(this.getAttribute("data-type") == "cf") {
+      if (this.getAttribute("data-type") == "cf") {
         var oLed = $(this).find("div.led");
-        $.post(sServer + "callFlows.php", {"callflow": sNumber}, function(oResult){
+        $.post(sServer + "callFlows.php", { "callflow": sNumber }, function(oResult) {
           /*** CLEAR CURRENT STATUS ***/
-          oLed.attr("class","led");
-          if(oResult.callFlow.call_flow_status === "true") {
+          oLed.attr("class", "led");
+          if (oResult.callFlow.call_flow_status === "true") {
             oLed.addClass("available");
           } else {
             oLed.addClass("busy");
           }
         })
       } else {
-        if($(this).attr("data-type") == "ext" && $(this).find("div.led.available").length == 0) throw new Error("Dit toestel is niet beschikbaar.")
-        $.get(sServer + "fs.php", {"user": sExtension, "destination": sNumber, "destination_name": sContactName}, function(oResult){
-          if(oResult.code != 0) {
+        if ($(this).attr("data-type") == "ext" && $(this).find("div.led.available").length == 0) throw new Error("Dit toestel is niet beschikbaar.")
+        $.get(sServer + "fs.php", { "user": sExtension, "destination": sNumber, "destination_name": sContactName }, function(oResult) {
+          if (oResult.code != 0) {
             var sMessage = "Fout onbekend."
-            switch(oResult.code) {
+            switch (oResult.code) {
               case 1050:
                 sMessage = "Uw telefoon is niet verbonden.";
                 break;
@@ -825,20 +831,19 @@ $(document).ready(function() {
                 break;
             }
             alert(sMessage);
-          } 
-        });  
+          }
+        });
       }
-    } catch(e){
+    } catch (e) {
       alert(e.message)
     }
   });
 
   /*** event for pasting selected phonenumber */
-  if(window.require) {
+  if (window.require) {
     require('electron').ipcRenderer.on('callMe', (event, sNumber) => {
       $('input#search').val(sNumber);
       $('a#add').addClass('call').attr('title', 'Telefoonnummer bellen');
     })
   }
 });
-
