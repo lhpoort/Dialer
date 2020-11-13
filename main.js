@@ -19,7 +19,7 @@ function createWindow() {
   win = new BrowserWindow({
     useContentSize: true,
     menu: null,
-    webPreferences: { plugins: true, devTools: true },
+    webPreferences: { plugins: true, devTools: true, enableRemoteModule: true, nodeIntegration: true },
     x: mainWindowState.x,
     y: mainWindowState.y,
     width: mainWindowState.width,
@@ -29,7 +29,7 @@ function createWindow() {
     alwaysOnTop: true,
     icon: path.join(__dirname, 'CSS/Components/icons/png/128x128.png')
   });
-  win.setMenu(null);
+  //win.setMenu(null);
   mainWindowState.manage(win);
   // and load the index.html of the app.
   win.loadURL(url.format({
