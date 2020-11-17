@@ -29,7 +29,7 @@ function createWindow() {
     alwaysOnTop: true,
     icon: path.join(__dirname, 'CSS/Components/icons/png/128x128.png')
   });
-  //win.setMenu(null);
+  win.setMenu(null);
   mainWindowState.manage(win);
   // and load the index.html of the app.
   win.loadURL(url.format({
