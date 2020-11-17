@@ -75,7 +75,11 @@ function shoContacts(search) {
         oContact.contact_phones.forEach(function(oPhone) {
           aNumbers.push(`${oPhone.phone_label}: ${oPhone.phone_number}`);
         });
-        var sNumber = aNumbers.join(",");
+        if (aNumbers.length > 1) {
+          var sNumber = aNumbers.join(",");
+        } else {
+          var sNumber = oContact.contact_phones[0].phone_number;
+        }
       } else {
         sNumber = "0";
       }
