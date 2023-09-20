@@ -1,7 +1,7 @@
 const dbName = "pbxConsole";
 const maxExt = 100;
 const refreshRate = 5000;
-const timeout = 3000;
+const timeout = 10000;
 const appVersion = window.require ? window.require('electron').remote.app.getVersion() : "XXX";
 var sServer = null;
 var sExtension = null;
