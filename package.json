@@ -1,6 +1,6 @@
 {
   "name": "dialer",
-  "version": "2.0.201110cd,
+  "version": "2.0.201110d",
   "description": "Web based dailer app for Fusion PBX",
   "main": "main.js",
   "scripts": {
